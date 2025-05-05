@@ -6,21 +6,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.cafeteria_android.R;
 import com.google.android.material.button.MaterialButton;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class UserPedidoAdapter extends RecyclerView.Adapter<UserPedidoAdapter.ViewHolder> {
+public class UserPedidoAdapter
+        extends RecyclerView.Adapter<UserPedidoAdapter.ViewHolder> {
 
     public interface OnPedidoActionListener {
         void onEliminar(Pedido pedido);
@@ -28,13 +26,14 @@ public class UserPedidoAdapter extends RecyclerView.Adapter<UserPedidoAdapter.Vi
 
     private final List<Pedido> pedidos;
     private final OnPedidoActionListener listener;
+
     private static final SimpleDateFormat IN_FMT =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
     private static final SimpleDateFormat OUT_FMT =
             new SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault());
 
     public UserPedidoAdapter(List<Pedido> pedidos, OnPedidoActionListener listener) {
-        this.pedidos = pedidos;
+        this.pedidos  = pedidos;
         this.listener = listener;
     }
 
@@ -49,10 +48,10 @@ public class UserPedidoAdapter extends RecyclerView.Adapter<UserPedidoAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder h, int pos) {
         Pedido p = pedidos.get(pos);
 
-        // Pedido ID
+        // — ID —
         h.tvPedidoId.setText("Pedido #" + p.getId());
 
-        // Estado + color
+        // — ESTADO —
         String est = p.getEstado().toLowerCase(Locale.ROOT);
         h.tvEstado.setText(p.getEstado().toUpperCase(Locale.ROOT));
         int bg;
@@ -65,7 +64,7 @@ public class UserPedidoAdapter extends RecyclerView.Adapter<UserPedidoAdapter.Vi
         }
         h.tvEstado.setBackgroundTintList(ColorStateList.valueOf(bg));
 
-        // Fecha
+        // — FECHA —
         try {
             Date d = IN_FMT.parse(p.getCreadoEn());
             h.tvFecha.setText(OUT_FMT.format(d));
@@ -73,7 +72,7 @@ public class UserPedidoAdapter extends RecyclerView.Adapter<UserPedidoAdapter.Vi
             h.tvFecha.setText(p.getCreadoEn());
         }
 
-        // Pagado
+        // — PAGADO —
         if (p.isPagado()) {
             h.tvPagado.setText("Pagado");
             h.tvPagado.setTextColor(Color.parseColor("#388E3C"));
@@ -82,28 +81,23 @@ public class UserPedidoAdapter extends RecyclerView.Adapter<UserPedidoAdapter.Vi
             h.tvPagado.setTextColor(Color.parseColor("#D32F2F"));
         }
 
-        // Calculamos total manualmente por si el servidor no cuadra
-// Dentro de onBindViewHolder(...)
-        double totalCalc = 0.0;
+        // — TOTAL REcalculado —
+        double totalCalc = 0;
         for (DetallePedido dp : p.getDetallePedido()) {
             double linea = dp.getPrecio() * dp.getCantidad();
             for (DetalleIngrediente di : dp.getDetalleIngrediente()) {
-                linea += di.getPrecio(); // ✅ usar precio del ingrediente
+                // usamos getPrecio() que mapea precio_extra
+                linea += di.getPrecio();
             }
             totalCalc += linea;
         }
         h.tvTotal.setText(String.format(Locale.getDefault(), "%.2f€", totalCalc));
 
-// Reemplazar el adaptador interno del detalle del pedido:
-        h.rvDetalle.setLayoutManager(new LinearLayoutManager(h.itemView.getContext()));
-        h.rvDetalle.setAdapter(new UserDetallePedidoAdapter(p.getDetallePedido())); // ✅ Adaptador corregido
-
-
-        // Detalle interno
+        // — LISTADO INTERNO —
         h.rvDetalle.setLayoutManager(new LinearLayoutManager(h.itemView.getContext()));
         h.rvDetalle.setAdapter(new UserDetallePedidoAdapter(p.getDetallePedido()));
 
-        // Botón Eliminar solo si rechazado
+        // — BOTÓN ELIMINAR (solo en rechazado) —
         if ("rechazado".equals(est)) {
             h.btnEliminar.setVisibility(View.VISIBLE);
             h.btnEliminar.setOnClickListener(v -> listener.onEliminar(p));

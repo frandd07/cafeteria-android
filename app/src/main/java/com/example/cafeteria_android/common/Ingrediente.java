@@ -1,9 +1,15 @@
 package com.example.cafeteria_android.common;
 
-public class Ingrediente {
+import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
+
+public class Ingrediente implements Serializable {
     private int id;
     private String nombre;
-    private double precio;  // 🔥 AÑADIR
+
+    // Mapeamos el JSON "precio_extra" en este campo
+    @SerializedName("precio_extra")
+    private double precio;
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
