@@ -1,0 +1,6 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <!-- Simula el anillo medio -->
+    <stroke android:width="4dp" android:color="#fa6a69"/>
+    <solid android:color="@android:color/transparent" />
+</shape>
