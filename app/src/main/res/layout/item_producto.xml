@@ -1,0 +1,115 @@
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="140dp"
+    android:layout_height="260dp"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:rippleColor="#33fa6a69"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Imagen del producto en la parte superior -->
+        <FrameLayout
+            android:id="@+id/imagenContainer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.52">
+
+            <!-- Fondo degradado del contenedor de imagen -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_producto_gradiente"/>
+
+            <!-- Imagen del producto -->
+            <ImageView
+                android:id="@+id/productoImagen"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="12dp"
+                android:scaleType="centerCrop"
+                android:background="@color/white"/>
+
+            <!-- Botón de favorito -->
+            <ImageButton
+                android:id="@+id/btnFavorito"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="8dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_star"
+                android:contentDescription="Favorito" />
+        </FrameLayout>
+
+        <!-- Contenedor de información del producto -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imagenContainer"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <!-- Nombre del producto -->
+            <TextView
+                android:id="@+id/productoNombre"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Café Americano"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:textColor="#212121"
+                android:maxLines="2"
+                android:ellipsize="end"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- Precio del producto -->
+            <TextView
+                android:id="@+id/productoPrecio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="3.50€"
+                android:textSize="16sp"
+                android:textColor="#fa6a69"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/productoNombre"/>
+
+            <!-- Botón de añadir al carrito con más separación -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAñadirCarrito"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:text="Añadir"
+                app:icon="@drawable/ic_shopping_cart"
+                app:iconSize="14dp"
+                app:iconGravity="textStart"
+                android:textSize="12sp"
+                android:backgroundTint="#fa6a69"
+                android:textColor="@android:color/white"
+                android:textAllCaps="false"
+                app:cornerRadius="10dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/productoPrecio"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -3,6 +3,9 @@
     <style name="Base.Theme.Cafeteriaandroid" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="textAppearanceHeadlineLarge">@style/TitleFont</item>
+        <item name="textAppearanceBodyMedium">@style/BodyFont</item>
+
     </style>
 
     <style name="Theme.Cafeteriaandroid" parent="Base.Theme.Cafeteriaandroid" />
