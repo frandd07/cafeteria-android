@@ -1,5 +1,7 @@
 package com.example.cafeteria_android.user.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,10 +15,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.cafeteria_android.R;
 import com.example.cafeteria_android.api.ApiClient;
 import com.example.cafeteria_android.api.ApiService;
+import com.example.cafeteria_android.common.FavoritoId;
 import com.example.cafeteria_android.common.Producto;
 import com.example.cafeteria_android.common.ProductoAdapter;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,6 +32,7 @@ public class MenuFragment extends Fragment {
     private RecyclerView recyclerView;
     private ProductoAdapter adapter;
     private ApiService apiService;
+    private String usuarioId;
 
     public MenuFragment() {}
 
@@ -35,40 +41,72 @@ public class MenuFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_menu, container, false);
         recyclerView = view.findViewById(R.id.recyclerProductos);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
         apiService = ApiClient.getClient().create(ApiService.class);
-        cargarProductos();
+
+        // ✅ Obtenemos el userId guardado en login
+        SharedPreferences prefs = requireActivity().getSharedPreferences("APP_PREFS", Context.MODE_PRIVATE);
+        usuarioId = prefs.getString("userId", null);
+
+        if (usuarioId == null) {
+            Toast.makeText(getContext(), "Error: usuario no autenticado", Toast.LENGTH_SHORT).show();
+        } else {
+            cargarProductosConFavoritos();
+        }
 
         return view;
     }
 
-    private void cargarProductos() {
-        apiService.obtenerProductos().enqueue(new Callback<List<Producto>>() {
+    private void cargarProductosConFavoritos() {
+        apiService.obtenerFavoritos(usuarioId).enqueue(new Callback<List<FavoritoId>>() {
             @Override
-            public void onResponse(Call<List<Producto>> call, Response<List<Producto>> response) {
+            public void onResponse(Call<List<FavoritoId>> call, Response<List<FavoritoId>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Producto> productos = response.body(); // ✅ aquí se define la variable correctamente
+                    Set<Integer> idsFavoritos = new HashSet<>();
+                    for (FavoritoId f : response.body()) {
+                        idsFavoritos.add(f.getProducto_id());
+                    }
 
-                    adapter = new ProductoAdapter(productos, producto -> {
-                        // abrimos el detalle en el mismo contenedor
-                        getParentFragmentManager().beginTransaction()
-                                .replace(R.id.contenedorFragmento,
-                                        ProductDetailFragment.newInstance(producto))
-                                .addToBackStack(null)
-                                .commit();
+                    apiService.obtenerProductos().enqueue(new Callback<List<Producto>>() {
+                        @Override
+                        public void onResponse(Call<List<Producto>> call, Response<List<Producto>> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                List<Producto> productos = response.body();
+
+                                for (Producto p : productos) {
+                                    if (idsFavoritos.contains(p.getId())) {
+                                        p.setFavorito(true);
+                                    }
+                                }
+
+                                adapter = new ProductoAdapter(productos, usuarioId, producto -> {
+                                    getParentFragmentManager().beginTransaction()
+                                            .replace(R.id.contenedorFragmento,
+                                                    ProductDetailFragment.newInstance(producto))
+                                            .addToBackStack(null)
+                                            .commit();
+                                });
+
+                                recyclerView.setAdapter(adapter);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<List<Producto>> call, Throwable t) {
+                            Toast.makeText(getContext(), "Error al cargar productos", Toast.LENGTH_SHORT).show();
+                        }
                     });
 
-
-                    recyclerView.setAdapter(adapter);
+                } else {
+                    Toast.makeText(getContext(), "Error al obtener favoritos", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Producto>> call, Throwable t) {
-                Toast.makeText(getContext(), "Error al cargar productos", Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<List<FavoritoId>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
     }
-
 }

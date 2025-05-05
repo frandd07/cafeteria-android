@@ -39,6 +39,17 @@
                 android:padding="12dp"
                 android:scaleType="centerCrop"
                 android:background="@color/white"/>
+
+            <!-- Botón de favorito -->
+            <ImageButton
+                android:id="@+id/btnFavorito"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="8dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_star"
+                android:contentDescription="Favorito" />
         </FrameLayout>
 
         <!-- Contenedor de información del producto -->

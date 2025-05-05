@@ -14,6 +14,7 @@ public class Producto implements Serializable {
     private String imagen;
     private double precio;
     private boolean habilitado;
+    private boolean favorito;
 
     // Lista de ingredientes extra disponibles para este producto
     @SerializedName("ingredientes_extra")  // ajústalo al nombre real que devuelve tu API
@@ -52,6 +53,14 @@ public class Producto implements Serializable {
     }
     public void setHabilitado(boolean habilitado) {
         this.habilitado = habilitado;
+    }
+
+    public boolean isFavorito() {
+        return favorito;
+    }
+
+    public void setFavorito(boolean favorito) {
+        this.favorito = favorito;
     }
 
     /**
