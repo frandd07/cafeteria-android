@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.cafeteria_android.auth.LoginActivity;
+
 
 public class MainActivity extends AppCompatActivity {
     private static final int SPLASH_TIMEOUT = 2000; // 2 segundos
@@ -77,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         // Tras SPLASH_TIMEOUT, pasar a LoginActivity (o a la pantalla siguiente)
         new Handler().postDelayed(() -> {
             dotsHandler.removeCallbacks(dotsRunnable); // detener animación de puntos
-            startActivity(new Intent(MainActivity.this, MainActivity.class)); //TODO: Crear Login activity
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
             finish();
         }, SPLASH_TIMEOUT);
     }
