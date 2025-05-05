@@ -13,6 +13,7 @@ import com.example.cafeteria_android.R;
 import com.example.cafeteria_android.api.ApiClient;
 import com.example.cafeteria_android.api.ApiService;
 import com.example.cafeteria_android.api.LoginResponse;
+import com.example.cafeteria_android.user.UserMenuActivity;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.HashMap;
@@ -99,13 +100,7 @@ public class LoginActivity extends AppCompatActivity {
                         //startActivity(new Intent(LoginActivity.this, AdminActivity.class));
 
                     } else {
-                        Toasty.success(
-                                LoginActivity.this,
-                                "Inicio de sesión correcto",
-                                Toast.LENGTH_SHORT,
-                                true
-                        ).show();
-                        //startActivity(new Intent(LoginActivity.this, UserMenuActivity.class));
+                        startActivity(new Intent(LoginActivity.this, UserMenuActivity.class));
                     }
                     // Evitar volver con back al login
                     finish();
