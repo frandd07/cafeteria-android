@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Correo electrónico"
                 app:startIconDrawable="@drawable/ic_email"
-                app:startIconTint="#fa6a69"
+                app:startIconTint="@color/main_color"
                 app:endIconMode="clear_text"
                 app:boxStrokeColor="#fa6a69"
                 app:hintTextColor="#fa6a69"
@@ -104,7 +104,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Contraseña"
                 app:startIconDrawable="@drawable/ic_lock"
-                app:startIconTint="#fa6a69"
+                app:startIconTint="@color/main_color"
                 app:endIconMode="password_toggle"
                 app:boxStrokeColor="#fa6a69"
                 app:hintTextColor="#fa6a69"
@@ -174,19 +174,5 @@
                 android:fontFamily="@font/cinzel" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
-    <!-- Footer -->
-    <TextView
-        android:id="@+id/footer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="© 2025 Cafetería IES Laguna de Tollón"
-        android:textSize="12sp"
-        android:textColor="#AAAAAA"
-        android:fontFamily="@font/cinzel"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="32dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
