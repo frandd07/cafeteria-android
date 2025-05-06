@@ -23,7 +23,7 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
 
     public interface OnUsuarioActionListener {
         void onVerificar(int position, @NonNull Usuario usuario);
-        void onRechazar (int position, @NonNull Usuario usuario);
+        void onRechazar(int position, @NonNull Usuario usuario);
     }
 
     private List<Usuario> usuarios;
@@ -52,7 +52,7 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
 
         // Header fields
         h.nombre.setText(usuario.getNombreCompleto());
-        h.email .setText(usuario.getEmail());
+        h.email.setText(usuario.getEmail());
 
         // Toggle expansion
         h.contentLayout.setVisibility(expanded ? View.VISIBLE : View.GONE);
@@ -69,7 +69,9 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
         if (expanded) {
             h.tipo.setText(usuario.getTipo());
 
-            if ("profesor".equalsIgnoreCase(usuario.getTipo())) {
+            String tipoLower = usuario.getTipo().toLowerCase(Locale.ROOT);
+            // Ocultar curso si es profesor o personal
+            if (tipoLower.equals("profesor") || tipoLower.equals("personal")) {
                 h.layoutCurso.setVisibility(View.GONE);
             } else {
                 h.layoutCurso.setVisibility(View.VISIBLE);
@@ -128,21 +130,21 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
 
         public UsuarioViewHolder(@NonNull View itemView) {
             super(itemView);
-            headerLayout = itemView.findViewById(R.id.headerLayout);
-            contentLayout= itemView.findViewById(R.id.contentLayout);
+            headerLayout  = itemView.findViewById(R.id.headerLayout);
+            contentLayout = itemView.findViewById(R.id.contentLayout);
 
-            nombre       = itemView.findViewById(R.id.tvNombre);
-            email        = itemView.findViewById(R.id.tvEmail);
-            tipo         = itemView.findViewById(R.id.tvTipo);
-            curso        = itemView.findViewById(R.id.tvCurso);
-            verificado   = itemView.findViewById(R.id.tvVerificado);
-            ivVerificado = itemView.findViewById(R.id.ivVerificado);
+            nombre        = itemView.findViewById(R.id.tvNombre);
+            email         = itemView.findViewById(R.id.tvEmail);
+            tipo          = itemView.findViewById(R.id.tvTipo);
+            curso         = itemView.findViewById(R.id.tvCurso);
+            verificado    = itemView.findViewById(R.id.tvVerificado);
+            ivVerificado  = itemView.findViewById(R.id.ivVerificado);
 
-            layoutCurso  = itemView.findViewById(R.id.layoutCurso);
-            layoutAccion = itemView.findViewById(R.id.layoutAccion);
+            layoutCurso   = itemView.findViewById(R.id.layoutCurso);
+            layoutAccion  = itemView.findViewById(R.id.layoutAccion);
 
-            btnVerificar = itemView.findViewById(R.id.btnAceptar);
-            btnRechazar  = itemView.findViewById(R.id.btnRechazar);
+            btnVerificar  = itemView.findViewById(R.id.btnAceptar);
+            btnRechazar   = itemView.findViewById(R.id.btnRechazar);
         }
     }
 }

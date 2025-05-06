@@ -140,4 +140,9 @@ public interface ApiService {
             @Path("id") int ingredienteId,
             @Body Map<String, Object> updates
     );
+
+    /** Elimina usuario de Auth y de la tabla en el backend */
+    @DELETE("/usuarios/{id}")
+    Call<Void> eliminarUsuario(@Path("id") String userId);
+
 }
