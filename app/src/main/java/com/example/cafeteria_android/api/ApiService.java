@@ -2,6 +2,7 @@ package com.example.cafeteria_android.api;
 
 import com.example.cafeteria_android.common.DetalleIngrediente;
 import com.example.cafeteria_android.common.FavoritoId;
+import com.example.cafeteria_android.common.Ingrediente;
 import com.example.cafeteria_android.common.Pedido;
 import com.example.cafeteria_android.common.Producto;
 import com.example.cafeteria_android.common.Usuario;
@@ -103,20 +104,18 @@ public interface ApiService {
     @DELETE("/productos/{id}")
     Call<Void> eliminarProducto(@Path("id") int productoId);
 
-    // Obtiene los ingredientes extra disponibles para un producto
-    @GET("/productos/{id}/ingredientes")
-    Call<List<DetalleIngrediente>> obtenerIngredientesProducto(
-            @Path("id") int productoId
-    );
 
-    // Asigna la lista de ingredientes a un producto
-    @Headers("Content-Type: application/json")
+    @GET("/ingredientes")
+    Call<List<Ingrediente>> getIngredientes();
+
+    @GET("/productos/{id}/ingredientes")
+    Call<List<DetalleIngrediente>> obtenerIngredientesProducto(@Path("id") int productoId);
+
     @POST("/productos/{id}/ingredientes")
     Call<Void> asignarIngredientes(
             @Path("id") int productoId,
-            @Body List<Map<String, Object>> ingredientes
+            @Body List<Map<String,Object>> ingredientes
     );
-    // cada elemento de la lista: { "ingrediente_id": Int }
 
     @PATCH("/pedidos/{id}")
     Call<Void> actualizarPedido(
