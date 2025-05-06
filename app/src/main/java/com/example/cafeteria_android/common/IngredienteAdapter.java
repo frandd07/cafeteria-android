@@ -20,32 +20,41 @@ public class IngredienteAdapter
         extends RecyclerView.Adapter<IngredienteAdapter.VH> {
 
     private final List<Ingrediente> lista = new ArrayList<>();
-    private final Set<Integer> selected = new HashSet<>();
+    private final Set<Integer> seleccionados = new HashSet<>();
 
-    /** Recibe todos los ingredientes y los IDs asignados */
+    /** Rellena todos y marca los ya asignados */
     public void setData(@NonNull List<Ingrediente> all, @NonNull List<Integer> assignedIds) {
         lista.clear();
         lista.addAll(all);
-        selected.clear();
-        selected.addAll(assignedIds);
+        seleccionados.clear();
+        seleccionados.addAll(assignedIds);
         notifyDataSetChanged();
     }
 
     @NonNull @Override
-    public VH onCreateViewHolder(@NonNull ViewGroup p, int v) {
-        View view = LayoutInflater.from(p.getContext())
-                .inflate(R.layout.item_ingrediente_check, p, false);
-        return new VH(view);
+    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_ingrediente_check, parent, false);
+        return new VH(v);
     }
 
     @Override public void onBindViewHolder(@NonNull VH h, int pos) {
         Ingrediente ing = lista.get(pos);
         h.cb.setOnCheckedChangeListener(null);
-        h.cb.setText(ing.getNombre());
-        h.cb.setChecked(selected.contains(ing.getId()));
+
+        // Nombre + precio
+        String txt = String.format(
+                Locale.getDefault(),
+                "%s  (+%.2f€)",
+                ing.getNombre(),
+                ing.getPrecio()     // <-- aquí usamos getPrecio()
+        );
+        h.cb.setText(txt);
+
+        h.cb.setChecked(seleccionados.contains(ing.getId()));
         h.cb.setOnCheckedChangeListener((btn, chk) -> {
-            if (chk) selected.add(ing.getId());
-            else selected.remove(ing.getId());
+            if (chk) seleccionados.add(ing.getId());
+            else     seleccionados.remove(ing.getId());
         });
     }
 
@@ -53,12 +62,14 @@ public class IngredienteAdapter
         return lista.size();
     }
 
-    /** Devuelve objetos completos de los seleccionados */
+    /** Ingredientes completos seleccionados */
     @NonNull
     public List<Ingrediente> getSeleccionados() {
         List<Ingrediente> out = new ArrayList<>();
         for (Ingrediente ing : lista) {
-            if (selected.contains(ing.getId())) out.add(ing);
+            if (seleccionados.contains(ing.getId())) {
+                out.add(ing);
+            }
         }
         return out;
     }
