@@ -8,16 +8,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import com.example.cafeteria_android.R;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class AdminDetallePedidoAdapter
         extends RecyclerView.Adapter<AdminDetallePedidoAdapter.ViewHolder> {
 
-    private List<DetallePedido> detalles;
+    private final List<DetallePedido> detalles;
 
     public AdminDetallePedidoAdapter(List<DetallePedido> detalles) {
         this.detalles = detalles;
@@ -37,27 +37,26 @@ public class AdminDetallePedidoAdapter
 
         // Nombre del producto y cantidad
         String nombre = dp.getProductos().getNombre();
-        h.tvProductoCantidad.setText(String.format(Locale.getDefault(), "%s ×%d", nombre, dp.getCantidad()));
+        h.tvProductoCantidad.setText(
+                String.format(Locale.getDefault(), "%s ×%d", nombre, dp.getCantidad())
+        );
 
-        // Precio de la línea (precio unitario * cantidad + sum extras)
-        double subtotal = dp.getPrecio() * dp.getCantidad();
-        double extras = 0;
-        for (DetalleIngrediente di : dp.getDetalleIngrediente()) {
-            extras += di.getPrecio();
-        }
-        h.tvPrecioLinea.setText(String.format(Locale.getDefault(), "%.2f€", subtotal + extras));
+        // Precio de la línea: dp.getPrecio() YA incluye extras
+        double linePrice = dp.getPrecio() * dp.getCantidad();
+        h.tvPrecioLinea.setText(
+                String.format(Locale.getDefault(), "%.2f€", linePrice)
+        );
 
-        // Lista de ingredientes extra
-        StringBuilder ingText = new StringBuilder();
-        for (DetalleIngrediente di : dp.getDetalleIngrediente()) {
-            ingText.append(di.getIngredientes().getNombre())
-                    .append(" +")
-                    .append(String.format(Locale.getDefault(), "%.2f€", di.getPrecio()))
-                    .append("\n");
+        // Mostrar solo lista de nombres de extras
+        List<DetalleIngrediente> extras = dp.getDetalleIngrediente();
+        if (extras != null && !extras.isEmpty()) {
+            String ingList = extras.stream()
+                    .map(di -> di.getIngredientes().getNombre())
+                    .collect(Collectors.joining(", "));
+            h.tvIngredientes.setText(ingList);
+        } else {
+            h.tvIngredientes.setText("");
         }
-        // quitamos la última línea vacía
-        String listaIng = ingText.toString().trim();
-        h.tvIngredientes.setText(listaIng);
     }
 
     @Override
@@ -66,7 +65,7 @@ public class AdminDetallePedidoAdapter
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvProductoCantidad, tvPrecioLinea, tvIngredientes;
+        final TextView tvProductoCantidad, tvPrecioLinea, tvIngredientes;
 
         ViewHolder(View iv) {
             super(iv);

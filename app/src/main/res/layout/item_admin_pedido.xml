@@ -138,14 +138,14 @@
                 android:background="#E0E0E0"
                 android:layout_marginBottom="12dp"/>
 
-            <!-- Fila de total y pagado -->
+            <!-- Fila de total, recero y pagado -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <!-- Total -->
+                <!-- Total y recero -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -168,6 +168,16 @@
                         android:textSize="18sp"
                         android:textColor="#212121"
                         android:layout_marginTop="2dp"/>
+
+                    <!-- Nuevo TextView para recero -->
+                    <TextView
+                        android:id="@+id/tvRecero"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Recero: 0,00€"
+                        android:textSize="14sp"
+                        android:textColor="#757575"
+                        android:layout_marginTop="4dp"/>
                 </LinearLayout>
 
                 <!-- Switch Pagado con fondo -->
@@ -201,7 +211,7 @@
             android:padding="12dp"
             android:background="#F5F5F5">
 
-            <!-- Botón Rechazar (visible cuando estado == "pendiente") -->
+            <!-- Botones… -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRechazar"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -211,7 +221,6 @@
                 android:textColor="#F44336"
                 app:rippleColor="#20F44336"/>
 
-            <!-- Botón Aceptar (visible cuando estado == "pendiente") -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAceptar"
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
@@ -222,7 +231,6 @@
                 android:backgroundTint="#4CAF50"
                 android:textColor="#FFFFFF"/>
 
-            <!-- Botón Marcar como listo (visible cuando estado == "aceptado") -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnListo"
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
@@ -231,10 +239,8 @@
                 android:text="Marcar como listo"
                 android:backgroundTint="#2196F3"
                 android:textColor="#FFFFFF"
-                android:visibility="gone"
-                tools:visibility="visible"/>
+                android:visibility="gone"/>
 
-            <!-- Botón Marcar como recogido (visible cuando estado == "listo" y pagado) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRecogido"
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
