@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardElevation="4dp"
+    app:strokeWidth="2dp"
+    app:strokeColor="@color/main_color"
+    android:backgroundTint="@color/white">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="16dp"
+        >
 
         <!-- CABECERA (siempre visible, clicable) -->
         <LinearLayout
@@ -61,6 +65,16 @@
                         android:layout_marginStart="4dp"/>
                 </LinearLayout>
             </LinearLayout>
+
+            <!-- Flecha de expandir/contraer -->
+            <ImageView
+                android:id="@+id/ivExpandIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_expand_more"
+                android:contentDescription="Expandir/Contraer"
+                app:tint="@color/main_color"
+                android:rotation="0"/>
         </LinearLayout>
 
         <!-- INFO EXPANDIBLE -->
@@ -76,7 +90,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E0E0E0"/>
+                android:background="@color/main_color"/>
 
             <!-- Tipo -->
             <LinearLayout
@@ -180,4 +194,4 @@
         </LinearLayout>
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

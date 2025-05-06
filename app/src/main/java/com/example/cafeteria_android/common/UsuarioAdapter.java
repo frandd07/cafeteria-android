@@ -50,27 +50,29 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
         int green       = ContextCompat.getColor(h.itemView.getContext(), R.color.successColor);
         int defaultText = ContextCompat.getColor(h.itemView.getContext(), R.color.black);
 
-        // Header fields
+        // Cabecera
         h.nombre.setText(usuario.getNombreCompleto());
         h.email.setText(usuario.getEmail());
 
-        // Toggle expansion
+        // Rotar flecha
+        h.ivArrow.setRotation(expanded ? 180f : 0f);
+
+        // Contenido expandible
         h.contentLayout.setVisibility(expanded ? View.VISIBLE : View.GONE);
         h.layoutAccion .setVisibility(expanded ? View.VISIBLE : View.GONE);
 
-        // Header click toggles
+        // Toggle al hacer click en la cabecera
         h.headerLayout.setOnClickListener(v -> {
             if (expanded) expandedPositions.remove(pos);
             else           expandedPositions.add(pos);
             notifyItemChanged(pos);
         });
 
-        // Additional info when expanded
+        // Si está expandido, cargamos los datos adicionales
         if (expanded) {
             h.tipo.setText(usuario.getTipo());
 
             String tipoLower = usuario.getTipo().toLowerCase(Locale.ROOT);
-            // Ocultar curso si es profesor o personal
             if (tipoLower.equals("profesor") || tipoLower.equals("personal")) {
                 h.layoutCurso.setVisibility(View.GONE);
             } else {
@@ -124,7 +126,7 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
     static class UsuarioViewHolder extends RecyclerView.ViewHolder {
         final View headerLayout, contentLayout;
         final TextView nombre, email, tipo, curso, verificado;
-        final ImageView ivVerificado;
+        final ImageView ivVerificado, ivArrow;
         final LinearLayout layoutCurso, layoutAccion;
         final Button btnVerificar, btnRechazar;
 
@@ -139,6 +141,7 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
             curso         = itemView.findViewById(R.id.tvCurso);
             verificado    = itemView.findViewById(R.id.tvVerificado);
             ivVerificado  = itemView.findViewById(R.id.ivVerificado);
+            ivArrow       = itemView.findViewById(R.id.ivExpandIcon);
 
             layoutCurso   = itemView.findViewById(R.id.layoutCurso);
             layoutAccion  = itemView.findViewById(R.id.layoutAccion);
