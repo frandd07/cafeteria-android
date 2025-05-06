@@ -1,0 +1,25 @@
+<!-- res/menu/menu_drawer.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Grupo principal con los 3 primeros -->
+    <group
+        android:id="@+id/group_admin_main"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_admin_usuarios"
+            android:title="Usuarios"
+            android:icon="@drawable/ic_user" />
+
+        <item
+            android:id="@+id/nav_admin_menu"
+            android:title="Menú"
+            android:icon="@drawable/ic_menu" />
+
+        <item
+            android:id="@+id/nav_admin_pedidos"
+            android:title="Pedidos"
+            android:icon="@drawable/ic_orders" />
+
+    </group>
+</menu>
