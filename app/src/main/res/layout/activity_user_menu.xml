@@ -40,5 +40,6 @@
         app:menu="@menu/nav_menu_user"
         app:itemBackground="@drawable/nav_item_background"
         app:itemIconTint="@color/black"
-        app:itemTextColor="@color/black"/>
+        app:itemTextColor="@color/black"
+        app:itemTextAppearance="@style/TextAppearance.NavMenuItem"/>
 </androidx.drawerlayout.widget.DrawerLayout>

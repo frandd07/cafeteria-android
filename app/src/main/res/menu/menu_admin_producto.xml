@@ -3,7 +3,8 @@
     <item
         android:id="@+id/action_ingredientes"
         android:title="Asignar ingredientes"
-        android:icon="@drawable/ic_kitchen" />
+        android:icon="@drawable/ic_kitchen"
+        />
     <item
         android:id="@+id/action_eliminar"
         android:title="Eliminar producto"

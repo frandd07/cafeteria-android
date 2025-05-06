@@ -20,7 +20,8 @@
             android:fontFamily="@font/cinzel"
             app:titleCentered="true"
             app:navigationIcon="@drawable/ic_menu"
-            app:popupTheme="@style/ThemeOverlay.Material3.Light" />
+            app:popupTheme="@style/ThemeOverlay.Material3.Light"
+            app:titleTextAppearance="@style/TextAppearance.ToolbarTitle"/>
 
         <FrameLayout
             android:id="@+id/fragment_container"
@@ -39,7 +40,7 @@
 
 
         app:itemBackground="@drawable/nav_item_background"
-
+        app:itemTextAppearance="@style/TextAppearance.NavMenuItem"
         app:itemIconTint="@color/black"
         app:itemTextColor="@color/black"
 
