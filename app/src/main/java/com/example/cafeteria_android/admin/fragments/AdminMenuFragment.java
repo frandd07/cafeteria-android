@@ -14,12 +14,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cafeteria_android.R;
 import com.example.cafeteria_android.admin.dialogs.CrearProductoBottomSheet;
-import com.example.cafeteria_android.admin.dialogs.EditarIngredientesBottomSheet;
+import com.example.cafeteria_android.admin.dialogs.EditarAsignacionIngredientesBottomSheet;
+import com.example.cafeteria_android.admin.dialogs.GestionIngredientesBottomSheet;
 import com.example.cafeteria_android.api.ApiClient;
 import com.example.cafeteria_android.api.ApiService;
 import com.example.cafeteria_android.common.AdminProductoAdapter;
 import com.example.cafeteria_android.common.Producto;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.leinardi.android.speeddial.SpeedDialActionItem;
+import com.leinardi.android.speeddial.SpeedDialView;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,9 +35,9 @@ import retrofit2.Response;
 public class AdminMenuFragment extends Fragment {
 
     private RecyclerView         rvProductos;
-    private FloatingActionButton btnNuevoProducto;
     private ApiService           api;
     private AdminProductoAdapter adapter;
+    private SpeedDialView        speedDial;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -42,14 +45,12 @@ public class AdminMenuFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_admin_menu, container, false);
 
-        rvProductos      = v.findViewById(R.id.recyclerAdminProductos);
-        btnNuevoProducto = v.findViewById(R.id.btnNuevoProducto);
-        api              = ApiClient.getClient().create(ApiService.class);
-
-        adapter = new AdminProductoAdapter(new AdminProductoAdapter.OnProductoActionListener() {
+        rvProductos = v.findViewById(R.id.recyclerAdminProductos);
+        api         = ApiClient.getClient().create(ApiService.class);
+        adapter     = new AdminProductoAdapter(new AdminProductoAdapter.OnProductoActionListener() {
             @Override
             public void onToggleHabilitado(@NonNull Producto producto, boolean habilitado) {
-                Map<String,Object> body = Collections.singletonMap("habilitado", habilitado);
+                Map<String, Object> body = Collections.singletonMap("habilitado", habilitado);
                 api.toggleProducto(producto.getId(), body)
                         .enqueue(new Callback<Void>() {
                             @Override public void onResponse(Call<Void> c, Response<Void> r) {
@@ -68,10 +69,11 @@ public class AdminMenuFragment extends Fragment {
 
             @Override
             public void onGestionarIngredientes(@NonNull Producto producto) {
-                new EditarIngredientesBottomSheet(
+                // Ahora abre el BottomSheet de asignación de ingredientes
+                new EditarAsignacionIngredientesBottomSheet(
                         producto.getId(),
                         AdminMenuFragment.this::cargarProductos
-                ).show(getChildFragmentManager(), "editar_ingredientes");
+                ).show(getChildFragmentManager(), "asignar_ingredientes");
             }
 
             @Override
@@ -102,10 +104,34 @@ public class AdminMenuFragment extends Fragment {
         rvProductos.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         rvProductos.setAdapter(adapter);
 
-        btnNuevoProducto.setOnClickListener(__ ->
-                new CrearProductoBottomSheet(this::cargarProductos)
-                        .show(getChildFragmentManager(), "crear_producto")
+        speedDial = v.findViewById(R.id.speedDial);
+        speedDial.addActionItem(new SpeedDialActionItem.Builder(
+                R.id.fab_add_product, R.drawable.ic_add)
+                .setLabel("Añadir producto")
+                .create()
         );
+        speedDial.addActionItem(new SpeedDialActionItem.Builder(
+                R.id.fab_manage_ingredients, R.drawable.ic_kitchen)
+                .setLabel("Ingredientes")
+                .create()
+        );
+        speedDial.setOnActionSelectedListener(actionItem -> {
+            switch (actionItem.getId()) {
+                case R.id.fab_add_product:
+                    new CrearProductoBottomSheet(this::cargarProductos)
+                            .show(getChildFragmentManager(), "crear_producto");
+                    speedDial.close();
+                    return true;
+                case R.id.fab_manage_ingredients:
+                    // mantiene el global si quieres
+                    new GestionIngredientesBottomSheet(this::cargarProductos)
+                            .show(getChildFragmentManager(), "gestionar_ingredientes");
+                    speedDial.close();
+                    return true;
+                default:
+                    return false;
+            }
+        });
 
         cargarProductos();
         return v;

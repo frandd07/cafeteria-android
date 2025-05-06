@@ -18,6 +18,7 @@ import retrofit2.http.HTTP;
 import retrofit2.http.Headers;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -122,4 +123,14 @@ public interface ApiService {
             @Path("id") int pedidoId,
             @Body Map<String, Object> campos
     );
+
+    @POST("ingredientes")
+    Call<Void> crearIngrediente(@Body Map<String,Object> body);
+
+    @GET("productos/{id}/ingredientes")
+    Call<List<Ingrediente>> getIngredientesProducto(@Path("id") int productoId);
+
+    @PUT("productos/{id}/ingredientes/precios")
+    Call<Void> actualizarPreciosIngrediente(@Path("id") int productoId,
+                                            @Body Map<Integer, Double> precios);
 }

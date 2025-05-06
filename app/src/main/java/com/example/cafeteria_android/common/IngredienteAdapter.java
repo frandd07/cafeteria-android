@@ -81,4 +81,12 @@ public class IngredienteAdapter
             cb = v.findViewById(R.id.cbIngrediente);
         }
     }
+
+    public void actualizarLista(@NonNull List<Ingrediente> nuevos) {
+        lista.clear();
+        lista.addAll(nuevos);
+        // opcional: limpiamos la selección si no la necesitas aquí
+        seleccionados.clear();
+        notifyDataSetChanged();
+    }
 }
