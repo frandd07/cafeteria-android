@@ -133,4 +133,11 @@ public interface ApiService {
     @PUT("productos/{id}/ingredientes/precios")
     Call<Void> actualizarPreciosIngrediente(@Path("id") int productoId,
                                             @Body Map<Integer, Double> precios);
+
+    @Headers("Content-Type: application/json")
+    @PATCH("ingredientes/{id}")
+    Call<Void> actualizarIngrediente(
+            @Path("id") int ingredienteId,
+            @Body Map<String, Object> updates
+    );
 }
