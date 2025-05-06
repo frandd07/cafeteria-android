@@ -66,23 +66,20 @@ public class AdminUsuariosFragment extends Fragment implements FilterBottomSheet
                         .enqueue(genericCallback(pos, "Usuario verificado"));
             }
             @Override public void onRechazar(int pos, @NonNull Usuario u) {
-                // Same code as swipe confirm...
+                // Lógica idéntica a la de swipe-confirm
             }
             private Callback<Void> genericCallback(int pos, String msg) {
                 return new Callback<Void>() {
                     @Override public void onResponse(Call<Void> c, Response<Void> r) {
                         if (r.isSuccessful()) {
-                            Toasty.success(getContext(),
-                                    msg, Toasty.LENGTH_SHORT, true).show();
+                            Toasty.success(getContext(), msg, Toasty.LENGTH_SHORT, true).show();
                             adapter.marcarVerificadoEn(pos);
                         } else {
-                            Toasty.error(getContext(),
-                                    "Error en la acción", Toasty.LENGTH_SHORT, true).show();
+                            Toasty.error(getContext(), "Error en la acción", Toasty.LENGTH_SHORT, true).show();
                         }
                     }
                     @Override public void onFailure(Call<Void> c, Throwable t) {
-                        Toasty.error(getContext(),
-                                "Error de red", Toasty.LENGTH_SHORT, true).show();
+                        Toasty.error(getContext(), "Error de red", Toasty.LENGTH_SHORT, true).show();
                     }
                 };
             }
@@ -90,10 +87,13 @@ public class AdminUsuariosFragment extends Fragment implements FilterBottomSheet
         recyclerView.setAdapter(adapter);
         attachSwipeToDelete();
         loadUsuarios("", "Todos");
+
+        // Aqui pasamos includeOrderNumber = false para que NO aparezca "nº pedido"
         fabFilter.setOnClickListener(x ->
-                new FilterBottomSheet(this)
+                new FilterBottomSheet(this, false)
                         .show(getChildFragmentManager(), "filter_sheet")
         );
+
         return v;
     }
 
@@ -151,7 +151,7 @@ public class AdminUsuariosFragment extends Fragment implements FilterBottomSheet
                         int pos = vh.getAdapterPosition();
                         adapter.notifyItemChanged(pos);
 
-                        // Inflate custom dialog
+                        // Inflar diálogo custom
                         View dlgView = LayoutInflater.from(requireContext())
                                 .inflate(R.layout.dialog_confirm, null, false);
                         AlertDialog dlg = new AlertDialog.Builder(requireContext())
@@ -159,8 +159,6 @@ public class AdminUsuariosFragment extends Fragment implements FilterBottomSheet
                                 .create();
                         dlg.show();
 
-                        // Bind views
-                        // ImageView ivWarningIcon = dlgView.findViewById(R.id.ivWarningIcon);
                         TextView tvTitle   = dlgView.findViewById(R.id.tvDialogTitle);
                         TextView tvMessage = dlgView.findViewById(R.id.tvDialogMessage);
                         MaterialButton btnCancel  = dlgView.findViewById(R.id.btnCancel);
@@ -172,7 +170,7 @@ public class AdminUsuariosFragment extends Fragment implements FilterBottomSheet
                         btnCancel.setOnClickListener(v -> dlg.dismiss());
                         btnConfirm.setOnClickListener(v -> {
                             Usuario u = listaUsuarios.get(pos);
-                            apiService.eliminarUsuario(u.getId())  // <-- aquí cambiamos
+                            apiService.eliminarUsuario(u.getId())
                                     .enqueue(new Callback<Void>() {
                                         @Override public void onResponse(Call<Void> c, Response<Void> r) {
                                             if (r.isSuccessful()) {
@@ -191,9 +189,7 @@ public class AdminUsuariosFragment extends Fragment implements FilterBottomSheet
                                     });
                             dlg.dismiss();
                         });
-
                     }
-
                     @Override public void onChildDraw(@NonNull Canvas c,
                                                       @NonNull RecyclerView rv,
                                                       @NonNull RecyclerView.ViewHolder vh,

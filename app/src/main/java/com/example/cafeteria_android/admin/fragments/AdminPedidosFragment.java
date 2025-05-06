@@ -3,10 +3,12 @@ package com.example.cafeteria_android.admin.fragments;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -15,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.cafeteria_android.R;
+import com.example.cafeteria_android.admin.dialogs.FilterBottomSheet;
 import com.example.cafeteria_android.api.ApiClient;
 import com.example.cafeteria_android.api.ApiService;
 import com.example.cafeteria_android.common.AdminPedidoAdapter;
@@ -23,41 +26,43 @@ import com.example.cafeteria_android.common.Pedido;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AdminPedidosFragment extends Fragment {
+public class AdminPedidosFragment extends Fragment implements FilterBottomSheet.Listener {
 
     private SwipeRefreshLayout swipeRefresh;
-    private RecyclerView rvAdminPedidos;
-    private View emptyView;
+    private RecyclerView       rvAdminPedidos;
+    private View               emptyView;
     private AdminPedidoAdapter adapter;
-    private List<Pedido> listaPedidos = new ArrayList<>();
-    private ApiService apiService;
+    private List<Pedido>       listaPedidos  = new ArrayList<>();
+    private List<Pedido>       listaFiltrada = new ArrayList<>();
+    private ApiService         apiService;
 
-    // Refresco periódico cada 30 s
     private final Handler handler = new Handler(Looper.getMainLooper());
     private static final long REFRESH_INTERVAL_MS = 30_000;
+
+    // now an anonymous Runnable so we can call 'this' inside it
     private final Runnable refresher = new Runnable() {
-        @Override
-        public void run() {
-            swipeRefresh.setRefreshing(true);
-            cargarPedidos();
-            handler.postDelayed(this, REFRESH_INTERVAL_MS);
+        @Override public void run() {
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(true);
+                cargarPedidos();
+                handler.postDelayed(this, REFRESH_INTERVAL_MS);
+            }
         }
     };
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container,
-                             Bundle savedInstanceState) {
+    @Override public View onCreateView(@NonNull LayoutInflater inflater,
+                                       ViewGroup container,
+                                       Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_admin_pedidos, container, false);
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view,
-                              @Nullable Bundle savedInstanceState) {
+    @Override public void onViewCreated(@NonNull View view,
+                                        @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         apiService     = ApiClient.getClient().create(ApiService.class);
@@ -65,69 +70,53 @@ public class AdminPedidosFragment extends Fragment {
         rvAdminPedidos = view.findViewById(R.id.rvAdminPedidos);
         emptyView      = view.findViewById(R.id.emptyView);
 
-        // RecyclerView + Adapter
         rvAdminPedidos.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new AdminPedidoAdapter(listaPedidos, new AdminPedidoAdapter.OnActionListener() {
-            @Override
-            public void onAceptar(Pedido pedido) {
+        adapter = new AdminPedidoAdapter(listaFiltrada, new AdminPedidoAdapter.OnActionListener() {
+            @Override public void onAceptar(Pedido pedido) {
                 actualizarEstado(pedido.getId(), "aceptado");
             }
-            @Override
-            public void onRechazar(Pedido pedido) {
+            @Override public void onRechazar(Pedido pedido) {
                 actualizarEstado(pedido.getId(), "rechazado");
             }
-            @Override
-            public void onMarcarListo(Pedido pedido) {
+            @Override public void onMarcarListo(Pedido pedido) {
                 actualizarEstado(pedido.getId(), "listo");
             }
-            @Override
-            public void onMarcarRecogido(Pedido pedido) {
-                apiService.eliminarPedido(pedido.getId())
-                        .enqueue(new Callback<Void>() {
-                            @Override
-                            public void onResponse(Call<Void> c, Response<Void> r) {
-                                if (r.isSuccessful()) {
-                                    Toast.makeText(getContext(),
-                                            "Pedido recogido y eliminado",
-                                            Toast.LENGTH_SHORT).show();
-                                    cargarPedidos();
-                                } else {
-                                    Toast.makeText(getContext(),
-                                            "Error al eliminar pedido",
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                            @Override
-                            public void onFailure(Call<Void> c, Throwable t) {
-                                Toast.makeText(getContext(),
-                                        "Error: " + t.getMessage(),
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
+            @Override public void onMarcarRecogido(Pedido pedido) {
+                apiService.eliminarPedido(pedido.getId()).enqueue(new Callback<Void>() {
+                    @Override public void onResponse(Call<Void> c, Response<Void> r) {
+                        if (r.isSuccessful()) cargarPedidos();
+                        else Toast.makeText(getContext(),
+                                "Error al eliminar pedido", Toast.LENGTH_SHORT).show();
+                    }
+                    @Override public void onFailure(Call<Void> c, Throwable t) {
+                        Toast.makeText(getContext(),
+                                "Error: "+t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
-            @Override
-            public void onMarcarPagado(Pedido pedido, boolean pagado) {
+            @Override public void onMarcarPagado(Pedido pedido, boolean pagado) {
                 actualizarPagado(pedido.getId(), pagado);
             }
         });
         rvAdminPedidos.setAdapter(adapter);
 
-        // Pull-to-refresh
         swipeRefresh.setOnRefreshListener(this::cargarPedidos);
 
-        // Primera carga
+        view.findViewById(R.id.fabFilter).setOnClickListener(v ->
+                new FilterBottomSheet(this,true)
+                        .show(getChildFragmentManager(), "filter_sheet")
+        );
+
         swipeRefresh.setRefreshing(true);
         cargarPedidos();
     }
 
-    @Override
-    public void onResume() {
+    @Override public void onResume() {
         super.onResume();
         handler.postDelayed(refresher, REFRESH_INTERVAL_MS);
     }
 
-    @Override
-    public void onPause() {
+    @Override public void onPause() {
         super.onPause();
         handler.removeCallbacks(refresher);
     }
@@ -135,27 +124,24 @@ public class AdminPedidosFragment extends Fragment {
     private void cargarPedidos() {
         apiService.obtenerPedidosAdmin("admin", null)
                 .enqueue(new Callback<List<Pedido>>() {
-                    @Override
-                    public void onResponse(Call<List<Pedido>> call,
-                                           Response<List<Pedido>> resp) {
+                    @Override public void onResponse(Call<List<Pedido>> c, Response<List<Pedido>> r) {
                         swipeRefresh.setRefreshing(false);
-                        if (resp.isSuccessful() && resp.body() != null) {
+                        if (r.isSuccessful() && r.body()!=null) {
                             listaPedidos.clear();
-                            listaPedidos.addAll(resp.body());
+                            listaPedidos.addAll(r.body());
+                            listaFiltrada.clear();
+                            listaFiltrada.addAll(listaPedidos);
                             adapter.notifyDataSetChanged();
                         } else {
                             Toast.makeText(getContext(),
-                                    "Error al cargar pedidos",
-                                    Toast.LENGTH_SHORT).show();
+                                    "Error al cargar pedidos", Toast.LENGTH_SHORT).show();
                         }
                         actualizarVista();
                     }
-                    @Override
-                    public void onFailure(Call<List<Pedido>> call, Throwable t) {
+                    @Override public void onFailure(Call<List<Pedido>> c, Throwable t) {
                         swipeRefresh.setRefreshing(false);
                         Toast.makeText(getContext(),
-                                "Error: " + t.getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                                "Error: "+t.getMessage(), Toast.LENGTH_SHORT).show();
                         actualizarVista();
                     }
                 });
@@ -165,24 +151,19 @@ public class AdminPedidosFragment extends Fragment {
         apiService.actualizarPedido(pedidoId,
                         Collections.singletonMap("estado", nuevoEstado))
                 .enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> c, Response<Void> r) {
+                    @Override public void onResponse(Call<Void> c, Response<Void> r) {
                         if (r.isSuccessful()) {
                             Toast.makeText(getContext(),
-                                    "Pedido " + nuevoEstado,
-                                    Toast.LENGTH_SHORT).show();
+                                    "Pedido "+nuevoEstado, Toast.LENGTH_SHORT).show();
                             cargarPedidos();
                         } else {
                             Toast.makeText(getContext(),
-                                    "Error al actualizar",
-                                    Toast.LENGTH_SHORT).show();
+                                    "Error al actualizar", Toast.LENGTH_SHORT).show();
                         }
                     }
-                    @Override
-                    public void onFailure(Call<Void> c, Throwable t) {
+                    @Override public void onFailure(Call<Void> c, Throwable t) {
                         Toast.makeText(getContext(),
-                                "Error: " + t.getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                                "Error: "+t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -191,36 +172,59 @@ public class AdminPedidosFragment extends Fragment {
         apiService.actualizarPedido(pedidoId,
                         Collections.singletonMap("pagado", pagado))
                 .enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> resp) {
+                    @Override public void onResponse(Call<Void> c, Response<Void> r) {
                         swipeRefresh.setRefreshing(false);
-                        if (resp.isSuccessful()) {
+                        if (r.isSuccessful()) {
                             Toast.makeText(getContext(),
-                                    pagado
-                                            ? "Pedido marcado como pagado"
-                                            : "Pago desmarcado",
+                                    pagado? "Pedido marcado como pagado" : "Pago desmarcado",
                                     Toast.LENGTH_SHORT).show();
                             cargarPedidos();
                         } else {
                             Toast.makeText(getContext(),
-                                    "Error al actualizar pago",
-                                    Toast.LENGTH_SHORT).show();
+                                    "Error al actualizar pago", Toast.LENGTH_SHORT).show();
                         }
                     }
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable t) {
+                    @Override public void onFailure(Call<Void> c, Throwable t) {
                         swipeRefresh.setRefreshing(false);
                         Toast.makeText(getContext(),
-                                "Error: " + t.getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                                "Error: "+t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    /** Muestra u oculta lista vs. mensaje vacío */
+    @Override
+    public void onFilter(String texto, String estado) {
+        listaFiltrada.clear();
+
+        if (!TextUtils.isEmpty(texto) && TextUtils.isDigitsOnly(texto)) {
+            int buscado = Integer.parseInt(texto);
+            for (Pedido p : listaPedidos) {
+                if (p.getId() == buscado) listaFiltrada.add(p);
+            }
+        } else {
+            String lower = texto.toLowerCase();
+            for (Pedido p : listaPedidos) {
+                boolean coincideTexto =
+                        p.getUsuario().getNombreCompleto().toLowerCase().contains(lower)
+                                || p.getUsuario().getEmail().toLowerCase().contains(lower)
+                                || String.valueOf(p.getId()).contains(lower);
+                boolean coincideEstado =
+                        TextUtils.isEmpty(estado) || estado.equalsIgnoreCase("Todos")
+                                || p.getEstado().equalsIgnoreCase(estado);
+
+                if (coincideTexto && coincideEstado) {
+                    listaFiltrada.add(p);
+                }
+            }
+        }
+
+        adapter.notifyDataSetChanged();
+        actualizarVista();
+    }
+
     private void actualizarVista() {
-        boolean hay = !listaPedidos.isEmpty();
+        boolean hay = !listaFiltrada.isEmpty();
         swipeRefresh.setVisibility(hay ? View.VISIBLE : View.GONE);
-        emptyView   .setVisibility(hay ? View.GONE    : View.VISIBLE);
+        emptyView.  setVisibility(hay ? View.GONE    : View.VISIBLE);
     }
 }

@@ -14,16 +14,20 @@ import com.example.cafeteria_android.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
+/**
+ * BottomSheet para filtrar la lista de pedidos por texto (nombre, email o nº pedido) y estado.
+ */
 public class FilterBottomSheet extends BottomSheetDialogFragment {
-    public interface Listener {
-        void onFilter(String texto, String tipo);
-    }
+    public interface Listener { void onFilter(String texto, String tipo); }
 
     private final Listener listener;
+    private final boolean includeOrderNumber;
 
-    public FilterBottomSheet(Listener listener) {
-        this.listener = listener;
+    public FilterBottomSheet(Listener listener, boolean includeOrderNumber) {
+        this.listener           = listener;
+        this.includeOrderNumber = includeOrderNumber;
     }
 
     @Nullable @Override
@@ -36,27 +40,45 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
-        TextInputEditText input     = view.findViewById(R.id.inputBusquedaSheet);
-        AutoCompleteTextView spinner= view.findViewById(R.id.spinnerTipoSheet);
-        MaterialButton btnClear     = view.findViewById(R.id.btnClearSheet);
-        MaterialButton btnApply     = view.findViewById(R.id.btnApplySheet);
+        super.onViewCreated(view, savedInstanceState);
 
-        // Rellenar spinner
+        TextInputLayout     layoutBusqueda = view.findViewById(R.id.layoutBusquedaSheet);
+        TextInputEditText   input          = view.findViewById(R.id.inputBusquedaSheet);
+        AutoCompleteTextView spinner       = view.findViewById(R.id.spinnerTipoSheet);
+        MaterialButton      btnClear       = view.findViewById(R.id.btnClearSheet);
+        MaterialButton      btnApply       = view.findViewById(R.id.btnApplySheet);
+
+        // Ajustar hint dinámicamente
+        String hint = includeOrderNumber
+                ? "Buscar por nombre, email o nº pedido"
+                : "Buscar por nombre o email";
+        layoutBusqueda.setHint(hint);
+
+        // Spinner de estados
+        String[] estados = new String[]{"Todos", "Pendiente", "Aceptado", "Listo"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_dropdown_item_1line,
-                new String[]{"Todos", "Alumnos", "Profesor", "Personal"}
+                estados
         );
         spinner.setAdapter(adapter);
 
+        // Limpiar
         btnClear.setOnClickListener(v -> {
             input.setText("");
             spinner.setText("Todos", false);
+            listener.onFilter("", "");
+            dismiss();
         });
 
+        // Aplicar
         btnApply.setOnClickListener(v -> {
-            String texto = input.getText().toString();
-            String tipo  = spinner.getText().toString();
+            String texto = input.getText() != null
+                    ? input.getText().toString().trim()
+                    : "";
+            String tipo  = spinner.getText() != null
+                    ? spinner.getText().toString()
+                    : "";
             listener.onFilter(texto, tipo);
             dismiss();
         });
