@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -8,28 +9,27 @@
     app:cardElevation="4dp">
 
     <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-       >
+        android:padding="16dp">
 
-        <!-- Encabezado con avatar e información principal -->
+        <!-- CABECERA (siempre visible, clicable) -->
         <LinearLayout
+            android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="12dp"
-            >
+            android:gravity="center_vertical">
 
-            <!-- Información principal -->
+            <!-- Info principal -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:orientation="vertical"
                 android:layout_marginStart="12dp">
 
-                <!-- Nombre con estilo más destacado -->
                 <TextView
                     android:id="@+id/tvNombre"
                     android:layout_width="match_parent"
@@ -37,60 +37,60 @@
                     android:text="Nombre"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="#ff6c6c" />
+                    android:textColor="#ff6c6c"/>
 
-                <!-- Email con icono -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="4dp">
 
                     <ImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_email"
-                        android:contentDescription="Icono de email" />
+                        android:contentDescription="Icono de email"/>
 
                     <TextView
                         android:id="@+id/tvEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Email"
+                        android:text="email@example.com"
                         android:textColor="#666666"
-                        android:layout_marginStart="4dp" />
+                        android:layout_marginStart="4dp"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Separador -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E0E0E0"
-            android:layout_marginBottom="12dp"
-            android:backgroundTint="@color/main_color"/>
-
-        <!-- Información adicional con iconos -->
+        <!-- INFO EXPANDIBLE -->
         <LinearLayout
+            android:id="@+id/contentLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="16dp">
+            android:visibility="gone"
+            android:layout_marginTop="12dp">
 
-            <!-- Tipo con icono -->
+            <!-- Separador -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"/>
+
+            <!-- Tipo -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:layout_marginTop="12dp">
 
                 <ImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:src="@drawable/ic_type"
-                    android:contentDescription="Icono de tipo" />
+                    android:contentDescription="Icono de tipo"/>
 
                 <TextView
                     android:id="@+id/tvTipo"
@@ -98,23 +98,23 @@
                     android:layout_height="wrap_content"
                     android:text="Tipo"
                     android:textColor="#333333"
-                    android:layout_marginStart="8dp" />
+                    android:layout_marginStart="8dp"/>
             </LinearLayout>
 
-            <!-- Curso con icono -->
+            <!-- Curso -->
             <LinearLayout
                 android:id="@+id/layoutCurso"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:layout_marginTop="8dp">
 
                 <ImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:src="@drawable/ic_course"
-                    android:contentDescription="Icono de curso" />
+                    android:contentDescription="Icono de curso"/>
 
                 <TextView
                     android:id="@+id/tvCurso"
@@ -122,22 +122,23 @@
                     android:layout_height="wrap_content"
                     android:text="Curso"
                     android:textColor="#333333"
-                    android:layout_marginStart="8dp" />
+                    android:layout_marginStart="8dp"/>
             </LinearLayout>
 
-            <!-- Verificado con icono y badge -->
+            <!-- Verificado -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
 
                 <ImageView
                     android:id="@+id/ivVerificado"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:src="@drawable/ic_verified"
-                    android:contentDescription="Icono de verificación" />
+                    android:contentDescription="Icono de verificación"/>
 
                 <TextView
                     android:id="@+id/tvVerificado"
@@ -145,17 +146,19 @@
                     android:layout_height="wrap_content"
                     android:text="Verificado"
                     android:textColor="#333333"
-                    android:layout_marginStart="8dp" />
+                    android:layout_marginStart="8dp"/>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Botones con mejor estilo -->
+        <!-- ACCIONES EXPANDIBLES -->
         <LinearLayout
             android:id="@+id/layoutAccion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="end">
+            android:gravity="end"
+            android:layout_marginTop="12dp"
+            android:visibility="gone">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRechazar"
@@ -165,7 +168,7 @@
                 android:textColor="#DD2C00"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 app:strokeColor="#DD2C00"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="8dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAceptar"
@@ -173,7 +176,8 @@
                 android:layout_height="wrap_content"
                 android:text="Aceptar"
                 android:backgroundTint="#ff6c6c"
-                android:textColor="#FFFFFF" />
+                android:textColor="#FFFFFF"/>
         </LinearLayout>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

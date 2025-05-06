@@ -14,7 +14,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cafeteria_android.R;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioViewHolder> {
 
@@ -25,6 +28,7 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
 
     private List<Usuario> usuarios;
     private final OnUsuarioActionListener listener;
+    private final Set<Integer> expandedPositions = new HashSet<>();
 
     public UsuarioAdapter(List<Usuario> usuarios, OnUsuarioActionListener listener) {
         this.usuarios = usuarios;
@@ -39,42 +43,60 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UsuarioViewHolder holder, int position) {
-        Usuario usuario = usuarios.get(position);
-        int green       = ContextCompat.getColor(holder.itemView.getContext(), R.color.successColor);
-        int defaultText = ContextCompat.getColor(holder.itemView.getContext(), R.color.black);
+    public void onBindViewHolder(@NonNull UsuarioViewHolder h, int pos) {
+        Usuario usuario = usuarios.get(pos);
+        boolean expanded = expandedPositions.contains(pos);
 
-        holder.nombre.setText(usuario.getNombreCompleto());
-        holder.email .setText(usuario.getEmail());
-        holder.tipo  .setText(usuario.getTipo());
+        int green       = ContextCompat.getColor(h.itemView.getContext(), R.color.successColor);
+        int defaultText = ContextCompat.getColor(h.itemView.getContext(), R.color.black);
 
-        // Curso
-        if ("profesor".equalsIgnoreCase(usuario.getTipo())) {
-            holder.layoutCurso.setVisibility(View.GONE);
-        } else {
-            holder.layoutCurso.setVisibility(View.VISIBLE);
-            holder.curso.setText(usuario.getCurso() == null || usuario.getCurso().isEmpty()
-                    ? "-" : usuario.getCurso());
-        }
+        // Header fields
+        h.nombre.setText(usuario.getNombreCompleto());
+        h.email .setText(usuario.getEmail());
 
-        // Verificación
-        if (usuario.isVerificado()) {
-            holder.verificado.setText("Sí");
-            holder.verificado.setTextColor(green);
-            holder.ivVerificado.setColorFilter(green);
-            holder.layoutAccion.setVisibility(View.GONE);
-        } else {
-            holder.verificado.setText("No");
-            holder.verificado.setTextColor(defaultText);
-            holder.ivVerificado.setColorFilter(defaultText);
-            holder.layoutAccion.setVisibility(View.VISIBLE);
+        // Toggle expansion
+        h.contentLayout.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        h.layoutAccion .setVisibility(expanded ? View.VISIBLE : View.GONE);
 
-            holder.btnVerificar.setOnClickListener(v ->
-                    listener.onVerificar(position, usuario)
-            );
-            holder.btnRechazar.setOnClickListener(v ->
-                    listener.onRechazar(position, usuario)
-            );
+        // Header click toggles
+        h.headerLayout.setOnClickListener(v -> {
+            if (expanded) expandedPositions.remove(pos);
+            else           expandedPositions.add(pos);
+            notifyItemChanged(pos);
+        });
+
+        // Additional info when expanded
+        if (expanded) {
+            h.tipo.setText(usuario.getTipo());
+
+            if ("profesor".equalsIgnoreCase(usuario.getTipo())) {
+                h.layoutCurso.setVisibility(View.GONE);
+            } else {
+                h.layoutCurso.setVisibility(View.VISIBLE);
+                h.curso.setText(
+                        usuario.getCurso() == null || usuario.getCurso().isEmpty()
+                                ? "-" : usuario.getCurso()
+                );
+            }
+
+            if (usuario.isVerificado()) {
+                h.verificado.setText("Sí");
+                h.verificado.setTextColor(green);
+                h.ivVerificado.setColorFilter(green);
+                h.layoutAccion.setVisibility(View.GONE);
+            } else {
+                h.verificado.setText("No");
+                h.verificado.setTextColor(defaultText);
+                h.ivVerificado.setColorFilter(defaultText);
+                h.layoutAccion.setVisibility(View.VISIBLE);
+
+                h.btnVerificar.setOnClickListener(v ->
+                        listener.onVerificar(pos, usuario)
+                );
+                h.btnRechazar.setOnClickListener(v ->
+                        listener.onRechazar(pos, usuario)
+                );
+            }
         }
     }
 
@@ -98,23 +120,29 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
     }
 
     static class UsuarioViewHolder extends RecyclerView.ViewHolder {
-        TextView nombre, email, tipo, curso, verificado;
-        ImageView ivVerificado;
-        LinearLayout layoutCurso, layoutAccion;
-        Button btnVerificar, btnRechazar;
+        final View headerLayout, contentLayout;
+        final TextView nombre, email, tipo, curso, verificado;
+        final ImageView ivVerificado;
+        final LinearLayout layoutCurso, layoutAccion;
+        final Button btnVerificar, btnRechazar;
 
         public UsuarioViewHolder(@NonNull View itemView) {
             super(itemView);
-            nombre        = itemView.findViewById(R.id.tvNombre);
-            email         = itemView.findViewById(R.id.tvEmail);
-            tipo          = itemView.findViewById(R.id.tvTipo);
-            curso         = itemView.findViewById(R.id.tvCurso);
-            verificado    = itemView.findViewById(R.id.tvVerificado);
-            ivVerificado  = itemView.findViewById(R.id.ivVerificado);
-            layoutCurso   = itemView.findViewById(R.id.layoutCurso);
-            layoutAccion  = itemView.findViewById(R.id.layoutAccion);
-            btnVerificar  = itemView.findViewById(R.id.btnAceptar);
-            btnRechazar   = itemView.findViewById(R.id.btnRechazar);
+            headerLayout = itemView.findViewById(R.id.headerLayout);
+            contentLayout= itemView.findViewById(R.id.contentLayout);
+
+            nombre       = itemView.findViewById(R.id.tvNombre);
+            email        = itemView.findViewById(R.id.tvEmail);
+            tipo         = itemView.findViewById(R.id.tvTipo);
+            curso        = itemView.findViewById(R.id.tvCurso);
+            verificado   = itemView.findViewById(R.id.tvVerificado);
+            ivVerificado = itemView.findViewById(R.id.ivVerificado);
+
+            layoutCurso  = itemView.findViewById(R.id.layoutCurso);
+            layoutAccion = itemView.findViewById(R.id.layoutAccion);
+
+            btnVerificar = itemView.findViewById(R.id.btnAceptar);
+            btnRechazar  = itemView.findViewById(R.id.btnRechazar);
         }
     }
 }
