@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,67 +57,60 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
         Producto producto = listaProductos.get(position);
         Context context = holder.itemView.getContext();
 
+        // Nombre y precio base del producto
         holder.productoNombre.setText(producto.getNombre());
-        holder.productoPrecio.setText(String.format(Locale.getDefault(), "%.2f €", producto.getPrecio()));
+        holder.productoPrecio.setText(
+                String.format(Locale.getDefault(), "%.2f €", producto.getPrecio())
+        );
 
+        // Carga de imagen
         Glide.with(context)
                 .load(producto.getImagen())
                 .placeholder(R.drawable.ic_delete)
                 .error(R.drawable.ic_delete)
                 .into(holder.productoImagen);
 
+        // Favorito
         holder.btnFavorito.setImageResource(
                 producto.isFavorito() ? R.drawable.ic_fill_star : R.drawable.ic_star
         );
-
         holder.btnFavorito.setOnClickListener(v -> {
             boolean nuevoEstado = !producto.isFavorito();
             producto.setFavorito(nuevoEstado);
-
             holder.btnFavorito.setImageResource(
                     nuevoEstado ? R.drawable.ic_fill_star : R.drawable.ic_star
             );
-
             Map<String, Object> body = new HashMap<>();
             body.put("usuario_id", usuarioId);
             body.put("producto_id", producto.getId());
 
             if (nuevoEstado) {
                 apiService.añadirAFavoritos(body).enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-                        if (response.isSuccessful()) {
-                            Toasty.success(context, "Añadido a favoritos", Toast.LENGTH_SHORT, true).show();
-                        } else {
-                            Toasty.error(context, "Error al añadir favorito", Toast.LENGTH_SHORT, true).show();
-                        }
+                    @Override public void onResponse(Call<Void> c, Response<Void> r) {
+                        if (r.isSuccessful()) Toasty.success(context, "Añadido a favoritos", Toasty.LENGTH_SHORT, true).show();
+                        else Toasty.error(context, "Error al añadir favorito", Toasty.LENGTH_SHORT, true).show();
                     }
-
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable t) {
-                        Toasty.error(context, "Error de red", Toast.LENGTH_SHORT, true).show();
+                    @Override public void onFailure(Call<Void> c, Throwable t) {
+                        Toasty.error(context, "Error de red", Toasty.LENGTH_SHORT, true).show();
                     }
                 });
             } else {
                 apiService.eliminarDeFavoritos(body).enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-                        if (response.isSuccessful()) {
-                            Toasty.success(context, "Eliminado de favoritos", Toast.LENGTH_SHORT, true).show();
-                        } else {
-                            Toasty.error(context, "Error al eliminar favorito", Toast.LENGTH_SHORT, true).show();
-                        }
+                    @Override public void onResponse(Call<Void> c, Response<Void> r) {
+                        if (r.isSuccessful()) Toasty.success(context, "Eliminado de favoritos", Toasty.LENGTH_SHORT, true).show();
+                        else Toasty.error(context, "Error al eliminar favorito", Toasty.LENGTH_SHORT, true).show();
                     }
-
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable t) {
-                        Toasty.error(context, "Error de red", Toast.LENGTH_SHORT, true).show();
+                    @Override public void onFailure(Call<Void> c, Throwable t) {
+                        Toasty.error(context, "Error de red", Toasty.LENGTH_SHORT, true).show();
                     }
                 });
             }
         });
 
-        holder.btnAñadirCarrito.setOnClickListener(v -> listener.onAñadirAlCarrito(producto));
+        // Añadir al carrito
+        holder.btnAñadirCarrito.setOnClickListener(v ->
+                listener.onAñadirAlCarrito(producto)
+        );
     }
 
     @Override
@@ -139,11 +131,11 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
 
         public ProductoViewHolder(@NonNull View itemView) {
             super(itemView);
-            productoNombre = itemView.findViewById(R.id.productoNombre);
-            productoPrecio = itemView.findViewById(R.id.productoPrecio);
-            productoImagen = itemView.findViewById(R.id.productoImagen);
+            productoNombre   = itemView.findViewById(R.id.productoNombre);
+            productoPrecio   = itemView.findViewById(R.id.productoPrecio);
+            productoImagen   = itemView.findViewById(R.id.productoImagen);
             btnAñadirCarrito = itemView.findViewById(R.id.btnAñadirCarrito);
-            btnFavorito = itemView.findViewById(R.id.btnFavorito);
+            btnFavorito      = itemView.findViewById(R.id.btnFavorito);
         }
     }
 }

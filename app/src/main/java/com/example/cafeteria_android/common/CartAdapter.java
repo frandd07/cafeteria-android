@@ -43,8 +43,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         // Carga la imagen del producto
         Glide.with(h.ivImagen.getContext())
                 .load(item.getProducto().getImagen())
-                .placeholder(R.drawable.ic_delete)      // opcional
-                .error(R.drawable.ic_delete)            // opcional
                 .into(h.ivImagen);
 
         // Nombre del producto

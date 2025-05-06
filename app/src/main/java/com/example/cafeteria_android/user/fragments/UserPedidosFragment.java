@@ -32,14 +32,14 @@ public class UserPedidosFragment extends Fragment {
 
     private static final String ARG_USER_ID = "arg_user_id";
 
-    private RecyclerView rvUserPedidos;
+    private RecyclerView       rvUserPedidos;
     private SwipeRefreshLayout swipeRefresh;
-    private View emptyView;
-    private MaterialButton btnEmptyAction;
-    private UserPedidoAdapter adapter;
-    private List<Pedido> lista = new ArrayList<>();
-    private String userId;
-    private ApiService apiService;
+    private View               emptyView;
+    private MaterialButton     btnEmptyAction;
+    private UserPedidoAdapter  adapter;
+    private List<Pedido>       lista = new ArrayList<>();
+    private String             userId;
+    private ApiService         apiService;
 
     public static UserPedidosFragment newInstance(String userId) {
         UserPedidosFragment f = new UserPedidosFragment();
@@ -49,8 +49,7 @@ public class UserPedidosFragment extends Fragment {
         return f;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    @Override public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             userId = getArguments().getString(ARG_USER_ID);
@@ -58,14 +57,13 @@ public class UserPedidosFragment extends Fragment {
         apiService = ApiClient.getClient().create(ApiService.class);
     }
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    @Override public View onCreateView(@NonNull LayoutInflater inflater,
+                                       ViewGroup container,
+                                       Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_user_pedidos, container, false);
     }
 
-    @Override
-    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
+    @Override public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
         swipeRefresh   = v.findViewById(R.id.swipeRefresh);
@@ -75,39 +73,42 @@ public class UserPedidosFragment extends Fragment {
 
         rvUserPedidos.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new UserPedidoAdapter(lista, pedido -> {
-            // Solo permitido eliminar pedidos rechazados
+            // Eliminar pedido (solo si está en estado "rechazado")
             apiService.eliminarPedido(pedido.getId())
                     .enqueue(new Callback<Void>() {
                         @Override public void onResponse(Call<Void> call, Response<Void> r) {
                             if (r.isSuccessful()) {
-                                Toasty.success(getContext(), "Pedido eliminado", Toasty.LENGTH_SHORT, true).show();
+                                Toasty.success(getContext(),
+                                        "Pedido eliminado",
+                                        Toasty.LENGTH_SHORT, true).show();
                                 cargarPedidos();
                             } else {
-                                Toasty.error(getContext(), "Error al eliminar pedido", Toasty.LENGTH_SHORT, true).show();
+                                Toasty.error(getContext(),
+                                        "Error al eliminar pedido",
+                                        Toasty.LENGTH_SHORT, true).show();
                             }
                         }
                         @Override public void onFailure(Call<Void> call, Throwable t) {
-                            Toast.makeText(getContext(),
+                            Toasty.error(getContext(),
                                     "Error de red al eliminar",
-                                    Toast.LENGTH_SHORT).show();
+                                    Toasty.LENGTH_SHORT, true).show();
                         }
                     });
         });
         rvUserPedidos.setAdapter(adapter);
 
         swipeRefresh.setOnRefreshListener(this::cargarPedidos);
-
-        btnEmptyAction.setOnClickListener(b -> {
+        btnEmptyAction .setOnClickListener(b -> {
             swipeRefresh.setRefreshing(true);
             cargarPedidos();
         });
 
+        // primera carga
         swipeRefresh.setRefreshing(true);
         cargarPedidos();
     }
 
-    @Override
-    public void onResume() {
+    @Override public void onResume() {
         super.onResume();
         cargarPedidos();
     }
@@ -115,8 +116,9 @@ public class UserPedidosFragment extends Fragment {
     private void cargarPedidos() {
         apiService.obtenerPedidosAdmin("user", userId)
                 .enqueue(new Callback<List<Pedido>>() {
-                    @Override public void onResponse(Call<List<Pedido>> call,
-                                                     Response<List<Pedido>> resp) {
+                    @Override
+                    public void onResponse(Call<List<Pedido>> call,
+                                           Response<List<Pedido>> resp) {
                         swipeRefresh.setRefreshing(false);
                         if (resp.isSuccessful() && resp.body() != null) {
                             lista.clear();
@@ -129,10 +131,11 @@ public class UserPedidosFragment extends Fragment {
                         }
                         actualizarVista();
                     }
-                    @Override public void onFailure(Call<List<Pedido>> call, Throwable t) {
+                    @Override
+                    public void onFailure(Call<List<Pedido>> call, Throwable t) {
                         swipeRefresh.setRefreshing(false);
                         Toast.makeText(getContext(),
-                                "Error: " + t.getMessage(),
+                                "Error de conexión: " + t.getMessage(),
                                 Toast.LENGTH_SHORT).show();
                         actualizarVista();
                     }
@@ -141,8 +144,8 @@ public class UserPedidosFragment extends Fragment {
 
     private void actualizarVista() {
         boolean hay = !lista.isEmpty();
-        rvUserPedidos .setVisibility(hay ? View.VISIBLE : View.GONE);
-        swipeRefresh  .setVisibility(hay ? View.VISIBLE : View.GONE);
-        emptyView     .setVisibility(hay ? View.GONE : View.VISIBLE);
+        rvUserPedidos.setVisibility(hay ? View.VISIBLE : View.GONE);
+        swipeRefresh .setVisibility(hay ? View.VISIBLE : View.GONE);
+        emptyView    .setVisibility(hay ? View.GONE : View.VISIBLE);
     }
 }
