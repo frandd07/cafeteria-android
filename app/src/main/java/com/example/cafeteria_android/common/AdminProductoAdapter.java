@@ -1,9 +1,12 @@
 package com.example.cafeteria_android.common;
 
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,14 +19,14 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Adapter para la vista de administrador de productos.
- */
 public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdapter.ViewHolder> {
 
     public interface OnProductoActionListener {
+        /** Toggle habilitado/deshabilitado */
         void onToggleHabilitado(@NonNull Producto producto, boolean habilitado);
-        void onEditar(@NonNull Producto producto);
+        /** Asignar/desasignar ingredientes */
+        void onGestionarIngredientes(@NonNull Producto producto);
+        /** Eliminar producto */
         void onEliminar(@NonNull Producto producto);
     }
 
@@ -34,9 +37,7 @@ public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdap
         this.listener = listener;
     }
 
-    /**
-     * Actualiza la lista de productos y refresca el RecyclerView.
-     */
+    /** Actualiza la lista de productos y refresca */
     public void actualizarLista(@NonNull List<Producto> nuevos) {
         lista.clear();
         lista.addAll(nuevos);
@@ -54,8 +55,8 @@ public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdap
     public void onBindViewHolder(@NonNull ViewHolder h, int pos) {
         Producto p = lista.get(pos);
 
-        h.tvNombre.setText(p.getNombre());
-        h.tvPrecio.setText(String.format("%.2f €", p.getPrecio()));
+        h.tvNombre .setText(p.getNombre());
+        h.tvPrecio .setText(String.format("%.2f €", p.getPrecio()));
         Glide.with(h.ivImagen.getContext())
                 .load(p.getImagen())
                 .placeholder(R.drawable.ic_delete)
@@ -70,9 +71,25 @@ public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdap
             }
         });
 
-        // Botones de editar y eliminar
-        h.btnEditar.setOnClickListener(v -> listener.onEditar(p));
-        h.btnEliminar.setOnClickListener(v -> listener.onEliminar(p));
+        // Botón “⋮”
+        h.btnOpciones.setOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(v.getContext(), v);
+            MenuInflater inflater = popup.getMenuInflater();
+            inflater.inflate(R.menu.menu_admin_producto, popup.getMenu());
+            popup.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()) {
+                    case R.id.action_eliminar:
+                        listener.onEliminar(p);
+                        return true;
+                    case R.id.action_ingredientes:
+                        listener.onGestionarIngredientes(p);
+                        return true;
+                    default:
+                        return false;
+                }
+            });
+            popup.show();
+        });
     }
 
     @Override
@@ -84,7 +101,7 @@ public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdap
         final de.hdodenhof.circleimageview.CircleImageView ivImagen;
         final TextView tvNombre, tvPrecio;
         final SwitchMaterial swHabilitado;
-        final ImageButton btnEditar, btnEliminar;
+        final ImageButton btnOpciones;
 
         ViewHolder(@NonNull View v) {
             super(v);
@@ -92,8 +109,7 @@ public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdap
             tvNombre     = v.findViewById(R.id.tvProductoAdminNombre);
             tvPrecio     = v.findViewById(R.id.tvProductoAdminPrecio);
             swHabilitado = v.findViewById(R.id.swProductoAdminHabilitado);
-            btnEditar    = v.findViewById(R.id.btnProductoAdminEditar);
-            btnEliminar  = v.findViewById(R.id.btnProductoAdminEliminar);
+            btnOpciones  = v.findViewById(R.id.btnOpciones);
         }
     }
 }

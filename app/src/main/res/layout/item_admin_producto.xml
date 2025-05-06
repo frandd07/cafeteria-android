@@ -56,21 +56,12 @@
                 android:layout_height="0dp"/>
 
             <ImageButton
-                android:id="@+id/btnProductoAdminEditar"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:src="@drawable/ic_edit"
-                android:contentDescription="Editar"
+                android:id="@+id/btnOpciones"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_more_vert"
+                android:contentDescription="Más opciones"
                 android:background="?attr/selectableItemBackgroundBorderless"/>
-
-            <ImageButton
-                android:id="@+id/btnProductoAdminEliminar"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:src="@drawable/ic_delete"
-                android:contentDescription="Eliminar"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_marginStart="8dp"/>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -31,10 +31,10 @@ import retrofit2.Response;
 
 public class AdminMenuFragment extends Fragment {
 
-    private RecyclerView           rvProductos;
-    private FloatingActionButton   btnNuevoProducto;
-    private ApiService             api;
-    private AdminProductoAdapter   adapter;
+    private RecyclerView         rvProductos;
+    private FloatingActionButton btnNuevoProducto;
+    private ApiService           api;
+    private AdminProductoAdapter adapter;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -42,35 +42,32 @@ public class AdminMenuFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_admin_menu, container, false);
 
-        // 1) Referencias
         rvProductos      = v.findViewById(R.id.recyclerAdminProductos);
         btnNuevoProducto = v.findViewById(R.id.btnNuevoProducto);
         api              = ApiClient.getClient().create(ApiService.class);
 
-        // 2) Adapter con callbacks
         adapter = new AdminProductoAdapter(new AdminProductoAdapter.OnProductoActionListener() {
             @Override
             public void onToggleHabilitado(@NonNull Producto producto, boolean habilitado) {
                 Map<String,Object> body = Collections.singletonMap("habilitado", habilitado);
-                api.toggleProducto(producto.getId(), body).enqueue(new Callback<Void>() {
-                    @Override public void onResponse(Call<Void> c, Response<Void> r) {
-                        String msg = habilitado
-                                ? "Producto habilitado"
-                                : "Producto deshabilitado";
-                        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
-                        cargarProductos();
-                    }
-                    @Override public void onFailure(Call<Void> c, Throwable t) {
-                        Toast.makeText(getContext(),
-                                "Error de red al cambiar estado",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+                api.toggleProducto(producto.getId(), body)
+                        .enqueue(new Callback<Void>() {
+                            @Override public void onResponse(Call<Void> c, Response<Void> r) {
+                                Toast.makeText(getContext(),
+                                        habilitado ? "Producto habilitado" : "Producto deshabilitado",
+                                        Toast.LENGTH_SHORT).show();
+                                cargarProductos();
+                            }
+                            @Override public void onFailure(Call<Void> c, Throwable t) {
+                                Toast.makeText(getContext(),
+                                        "Error de red al cambiar estado",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
 
             @Override
-            public void onEditar(@NonNull Producto producto) {
-                // Editar ingredientes asignados
+            public void onGestionarIngredientes(@NonNull Producto producto) {
                 new EditarIngredientesBottomSheet(
                         producto.getId(),
                         AdminMenuFragment.this::cargarProductos
@@ -79,63 +76,59 @@ public class AdminMenuFragment extends Fragment {
 
             @Override
             public void onEliminar(@NonNull Producto producto) {
-                api.eliminarProducto(producto.getId()).enqueue(new Callback<Void>() {
-                    @Override public void onResponse(Call<Void> c, Response<Void> r) {
-                        if (r.isSuccessful()) {
-                            Toast.makeText(getContext(),
-                                    "Producto eliminado",
-                                    Toast.LENGTH_SHORT).show();
-                            cargarProductos();
-                        } else {
-                            Toast.makeText(getContext(),
-                                    "Error al eliminar producto",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                    @Override public void onFailure(Call<Void> c, Throwable t) {
-                        Toast.makeText(getContext(),
-                                "Error de red al eliminar",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+                api.eliminarProducto(producto.getId())
+                        .enqueue(new Callback<Void>() {
+                            @Override public void onResponse(Call<Void> c, Response<Void> r) {
+                                if (r.isSuccessful()) {
+                                    Toast.makeText(getContext(),
+                                            "Producto eliminado",
+                                            Toast.LENGTH_SHORT).show();
+                                    cargarProductos();
+                                } else {
+                                    Toast.makeText(getContext(),
+                                            "Error al eliminar producto",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            @Override public void onFailure(Call<Void> c, Throwable t) {
+                                Toast.makeText(getContext(),
+                                        "Error de red al eliminar",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
         });
 
-        // 3) RecyclerView
         rvProductos.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         rvProductos.setAdapter(adapter);
 
-        // 4) Nuevo producto
         btnNuevoProducto.setOnClickListener(__ ->
-                new CrearProductoBottomSheet(AdminMenuFragment.this::cargarProductos)
+                new CrearProductoBottomSheet(this::cargarProductos)
                         .show(getChildFragmentManager(), "crear_producto")
         );
 
-        // 5) Carga inicial
         cargarProductos();
         return v;
     }
 
-    /**
-     * Consulta al servidor y actualiza la lista en la UI.
-     */
     private void cargarProductos() {
-        api.getProductosAdmin().enqueue(new Callback<List<Producto>>() {
-            @Override public void onResponse(Call<List<Producto>> call,
-                                             Response<List<Producto>> resp) {
-                if (resp.isSuccessful() && resp.body() != null) {
-                    adapter.actualizarLista(resp.body());
-                } else {
-                    Toast.makeText(getContext(),
-                            "Error al cargar productos",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-            @Override public void onFailure(Call<List<Producto>> call, Throwable t) {
-                Toast.makeText(getContext(),
-                        "Error de red al cargar productos",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+        api.getProductosAdmin()
+                .enqueue(new Callback<List<Producto>>() {
+                    @Override public void onResponse(Call<List<Producto>> call,
+                                                     Response<List<Producto>> resp) {
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            adapter.actualizarLista(resp.body());
+                        } else {
+                            Toast.makeText(getContext(),
+                                    "Error al cargar productos",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    @Override public void onFailure(Call<List<Producto>> call, Throwable t) {
+                        Toast.makeText(getContext(),
+                                "Error de red al cargar productos",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }
