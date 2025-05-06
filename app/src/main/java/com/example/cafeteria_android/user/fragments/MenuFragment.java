@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -18,6 +19,7 @@ import com.example.cafeteria_android.api.ApiService;
 import com.example.cafeteria_android.common.FavoritoId;
 import com.example.cafeteria_android.common.Producto;
 import com.example.cafeteria_android.common.ProductoAdapter;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +35,7 @@ public class MenuFragment extends Fragment {
     private ProductoAdapter adapter;
     private ApiService apiService;
     private String usuarioId;
+    private SwitchMaterial switchFavoritos;
 
     public MenuFragment() {}
 
@@ -43,9 +46,12 @@ public class MenuFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerProductos);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
+        // Switch para filtrar favoritos
+        switchFavoritos = view.findViewById(R.id.switchFavoritos);
+
         apiService = ApiClient.getClient().create(ApiService.class);
 
-        // ✅ Obtenemos el userId guardado en login
+        // Obtenemos el userId guardado en login
         SharedPreferences prefs = requireActivity().getSharedPreferences("APP_PREFS", Context.MODE_PRIVATE);
         usuarioId = prefs.getString("userId", null);
 
@@ -54,6 +60,9 @@ public class MenuFragment extends Fragment {
         } else {
             cargarProductosConFavoritos();
         }
+
+        // Escuchar cambios en el Switch para aplicar el filtro de favoritos
+        switchFavoritos.setOnCheckedChangeListener((buttonView, isChecked) -> cargarProductosConFavoritos());
 
         return view;
     }
@@ -74,6 +83,12 @@ public class MenuFragment extends Fragment {
                             if (response.isSuccessful() && response.body() != null) {
                                 List<Producto> productos = response.body();
 
+                                // Filtramos productos si el switch está activado
+                                if (switchFavoritos.isChecked()) {
+                                    productos.removeIf(producto -> !idsFavoritos.contains(producto.getId()));
+                                }
+
+                                // Marcar como favorito si está en la lista de favoritos
                                 for (Producto p : productos) {
                                     if (idsFavoritos.contains(p.getId())) {
                                         p.setFavorito(true);

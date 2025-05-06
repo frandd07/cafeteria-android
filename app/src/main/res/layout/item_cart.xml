@@ -24,7 +24,8 @@
             android:layout_height="60dp"
             android:background="#E0E0E0"
             android:contentDescription="Imagen del producto"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:backgroundTint="@color/white"/>
 
         <!-- Contenedor de información del producto -->
         <LinearLayout

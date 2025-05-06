@@ -14,14 +14,6 @@
         android:textSize="16sp"
         android:text="Producto x1" />
 
-    <!-- Precio de esa línea -->
-    <TextView
-        android:id="@+id/tvPrecioLinea"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="3.50€"
-        android:layout_marginTop="2dp"/>
-
     <!-- Ingredientes extra (uno por línea) -->
     <TextView
         android:id="@+id/tvIngredientes"

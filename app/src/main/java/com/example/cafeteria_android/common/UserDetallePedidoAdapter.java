@@ -9,14 +9,21 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cafeteria_android.R;
+import com.example.cafeteria_android.api.ApiClient;
+import com.example.cafeteria_android.api.ApiService;
 
 import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class UserDetallePedidoAdapter
         extends RecyclerView.Adapter<UserDetallePedidoAdapter.ViewHolder> {
 
     private final List<DetallePedido> detalles;
+    private final ApiService apiService = ApiClient.getClient().create(ApiService.class);
 
     public UserDetallePedidoAdapter(List<DetallePedido> detalles) {
         this.detalles = detalles;
@@ -26,7 +33,7 @@ public class UserDetallePedidoAdapter
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_detalle_pedido, parent, false); // 🟢 Usa tu layout actual
+                .inflate(R.layout.item_detalle_pedido, parent, false);
         return new ViewHolder(v);
     }
 
@@ -34,24 +41,57 @@ public class UserDetallePedidoAdapter
     public void onBindViewHolder(@NonNull ViewHolder h, int pos) {
         DetallePedido dp = detalles.get(pos);
 
+        // 1) Nombre × cantidad
         String nombre = dp.getProductos().getNombre();
-        h.tvProductoCantidad.setText(String.format(Locale.getDefault(), "%s ×%d", nombre, dp.getCantidad()));
+        h.tvProductoCantidad.setText(
+                String.format(Locale.getDefault(), "%s ×%d", nombre, dp.getCantidad())
+        );
 
-        double subtotal = dp.getPrecio() * dp.getCantidad();
-        double extras = 0;
-        StringBuilder ingText = new StringBuilder();
+        // 2) Precio base (unitario × cantidad)
+        double lineaBase = dp.getPrecio() * dp.getCantidad();
 
-        for (DetalleIngrediente di : dp.getDetalleIngrediente()) {
-            double precio = di.getPrecio();
-            extras += precio;
-            ingText.append(di.getIngredientes().getNombre())
-                    .append(" +")
-                    .append(String.format(Locale.getDefault(), "%.2f€", precio))
-                    .append("\n");
-        }
+        // 3) Limpiar el TextView de ingredientes antes de cargar
+        h.tvIngredientes.setText("");
 
-        h.tvPrecioLinea.setText(String.format(Locale.getDefault(), "%.2f€", subtotal + extras));
-        h.tvIngredientes.setText(ingText.toString().trim());
+        // 4) Obtener extras oficiales del producto
+        apiService.obtenerExtrasProducto(dp.getProductoId())
+                .enqueue(new Callback<List<DetalleIngrediente>>() {
+                    @Override
+                    public void onResponse(Call<List<DetalleIngrediente>> call,
+                                           Response<List<DetalleIngrediente>> resp) {
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            double extrasSum = 0;
+                            StringBuilder sb = new StringBuilder();
+
+                            // Para cada extra que el usuario seleccionó en este pedido...
+                            for (DetalleIngrediente elegido : dp.getDetalleIngrediente()) {
+                                int selId = elegido.getIngredienteId();
+                                // buscar el precio real entre los extras oficiales
+                                for (DetalleIngrediente extraOficial : resp.body()) {
+                                    if (extraOficial.getIngredienteId() == selId) {
+                                        double precioExtra = extraOficial.getPrecio();  // ← USAMOS getPrecio()
+                                        extrasSum += precioExtra;
+                                        sb.append(extraOficial.getIngredientes().getNombre())
+                                                .append(" +")
+                                                .append(String.format(Locale.getDefault(),
+                                                        "%.2f€", precioExtra))
+                                                .append("\n");
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // 5) Actualizamos el subtotal (base + extras)
+                            double subtotal = lineaBase + extrasSum;
+                            h.tvIngredientes.setText(sb.toString().trim());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<DetalleIngrediente>> call, Throwable t) {
+                        // fallo de red: dejamos sólo el precio base
+                    }
+                });
     }
 
     @Override
@@ -60,12 +100,10 @@ public class UserDetallePedidoAdapter
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvProductoCantidad, tvPrecioLinea, tvIngredientes;
-
+        final TextView tvProductoCantidad, tvIngredientes;
         ViewHolder(View iv) {
             super(iv);
             tvProductoCantidad = iv.findViewById(R.id.tvProductoCantidad);
-            tvPrecioLinea      = iv.findViewById(R.id.tvPrecioLinea);
             tvIngredientes     = iv.findViewById(R.id.tvIngredientes);
         }
     }
