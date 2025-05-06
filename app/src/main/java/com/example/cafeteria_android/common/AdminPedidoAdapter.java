@@ -13,8 +13,10 @@ import com.example.cafeteria_android.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class AdminPedidoAdapter
         extends RecyclerView.Adapter<AdminPedidoAdapter.ViewHolder> {
@@ -29,6 +31,7 @@ public class AdminPedidoAdapter
 
     private final List<Pedido> lista;
     private final OnActionListener listener;
+    private final Set<Integer> expandedPositions = new HashSet<>();
 
     public AdminPedidoAdapter(List<Pedido> lista, OnActionListener listener) {
         this.lista = lista;
@@ -45,63 +48,73 @@ public class AdminPedidoAdapter
     @Override public void onBindViewHolder(@NonNull ViewHolder h, int pos) {
         Pedido p = lista.get(pos);
         String estado = p.getEstado().toLowerCase(Locale.ROOT);
+        boolean expanded = expandedPositions.contains(pos);
 
-        // Cabecera
+        // toggle content visibility
+        h.contentLayout.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        h.actionsLayout.setVisibility(expanded ? View.VISIBLE : View.GONE);
+
+        // bind header
         h.tvPedidoId.setText("Pedido #" + p.getId());
-        h.tvEstado.setText(p.getEstado().toUpperCase(Locale.ROOT));
-        h.tvAlumno.setText(
-                p.getUsuario().getNombreCompleto() + " – " + p.getUsuario().getCurso()
-        );
-        h.tvTotal.setText(
-                String.format(Locale.getDefault(), "Total: %.2f€", p.getTotal())
-        );
-        // Aquí mostramos el recero
-        String receroRaw = p.getRecreo();               // e.g. "lo_antes_posible" o "5_00€"
+        h.tvEstado  .setText(p.getEstado().toUpperCase(Locale.ROOT));
+        h.tvAlumno  .setText(p.getUsuario().getNombreCompleto() + " – " + p.getUsuario().getCurso());
+        h.tvTotal   .setText(String.format(Locale.getDefault(), "Total: %.2f€", p.getTotal()));
+
+        // clean and bind recreo
+        String receroRaw = p.getRecreo();
         String receroClean = receroRaw
-                .replace("_", " ")                          // quita los guiones bajos
-                .replace("€", "")                           // quita el símbolo €
-                .trim();                                    // elimina espacios extra
+                .replace("_", " ")
+                .replace("€", "")
+                .trim();
         h.tvRecero.setText("Recreo: " + receroClean);
 
+        // header click toggles expansion
+        h.headerLayout.setOnClickListener(v -> {
+            if (expanded) expandedPositions.remove(pos);
+            else           expandedPositions.add(pos);
+            notifyItemChanged(pos);
+        });
 
-        // SwitchPagado
-        h.switchPagado.setOnCheckedChangeListener(null);
-        h.switchPagado.setChecked(p.isPagado());
-        h.switchPagado.setOnCheckedChangeListener((btn, chk) ->
-                listener.onMarcarPagado(p, chk)
-        );
+        // if expanded bind inner views
+        if (expanded) {
+            // switch pagado
+            h.switchPagado.setOnCheckedChangeListener(null);
+            h.switchPagado.setChecked(p.isPagado());
+            h.switchPagado.setOnCheckedChangeListener((btn, chk) ->
+                    listener.onMarcarPagado(p, chk)
+            );
 
-        // Detalle interno
-        AdminDetallePedidoAdapter detalleAdapter =
-                new AdminDetallePedidoAdapter(p.getDetallePedido());
-        h.recyclerDetalle.setLayoutManager(
-                new LinearLayoutManager(h.itemView.getContext())
-        );
-        h.recyclerDetalle.setAdapter(detalleAdapter);
+            // detalle pedido
+            AdminDetallePedidoAdapter detalleAdapter =
+                    new AdminDetallePedidoAdapter(p.getDetallePedido());
+            h.recyclerDetalle.setLayoutManager(
+                    new LinearLayoutManager(h.itemView.getContext()));
+            h.recyclerDetalle.setAdapter(detalleAdapter);
 
-        // Ocultar todos los botones
-        h.btnAceptar.setVisibility(View.GONE);
-        h.btnRechazar.setVisibility(View.GONE);
-        h.btnListo.setVisibility(View.GONE);
-        h.btnRecogido.setVisibility(View.GONE);
+            // reset buttons
+            h.btnAceptar .setVisibility(View.GONE);
+            h.btnRechazar.setVisibility(View.GONE);
+            h.btnListo   .setVisibility(View.GONE);
+            h.btnRecogido.setVisibility(View.GONE);
 
-        switch (estado) {
-            case "pendiente":
-                h.btnAceptar.setVisibility(View.VISIBLE);
-                h.btnAceptar.setOnClickListener(v -> listener.onAceptar(p));
-                h.btnRechazar.setVisibility(View.VISIBLE);
-                h.btnRechazar.setOnClickListener(v -> listener.onRechazar(p));
-                break;
-            case "aceptado":
-                h.btnListo.setVisibility(View.VISIBLE);
-                h.btnListo.setOnClickListener(v -> listener.onMarcarListo(p));
-                break;
-            case "listo":
-                if (p.isPagado()) {
-                    h.btnRecogido.setVisibility(View.VISIBLE);
-                    h.btnRecogido.setOnClickListener(v -> listener.onMarcarRecogido(p));
-                }
-                break;
+            switch (estado) {
+                case "pendiente":
+                    h.btnAceptar .setVisibility(View.VISIBLE);
+                    h.btnAceptar .setOnClickListener(v2 -> listener.onAceptar(p));
+                    h.btnRechazar.setVisibility(View.VISIBLE);
+                    h.btnRechazar.setOnClickListener(v2 -> listener.onRechazar(p));
+                    break;
+                case "aceptado":
+                    h.btnListo.setVisibility(View.VISIBLE);
+                    h.btnListo.setOnClickListener(v2 -> listener.onMarcarListo(p));
+                    break;
+                case "listo":
+                    if (p.isPagado()) {
+                        h.btnRecogido.setVisibility(View.VISIBLE);
+                        h.btnRecogido.setOnClickListener(v2 -> listener.onMarcarRecogido(p));
+                    }
+                    break;
+            }
         }
     }
 
@@ -110,6 +123,7 @@ public class AdminPedidoAdapter
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
+        final View headerLayout, contentLayout, actionsLayout;
         final TextView tvPedidoId, tvEstado, tvAlumno, tvTotal, tvRecero;
         final RecyclerView recyclerDetalle;
         final MaterialButton btnAceptar, btnRechazar, btnListo, btnRecogido;
@@ -117,17 +131,20 @@ public class AdminPedidoAdapter
 
         ViewHolder(View itemView) {
             super(itemView);
-            tvPedidoId      = itemView.findViewById(R.id.tvPedidoId);
-            tvEstado        = itemView.findViewById(R.id.tvEstado);
-            tvAlumno        = itemView.findViewById(R.id.tvAlumno);
-            tvTotal         = itemView.findViewById(R.id.tvTotal);
-            tvRecero        = itemView.findViewById(R.id.tvRecero);          // nuevo
-            recyclerDetalle = itemView.findViewById(R.id.recyclerDetallePedido);
-            btnAceptar      = itemView.findViewById(R.id.btnAceptar);
-            btnRechazar     = itemView.findViewById(R.id.btnRechazar);
-            btnListo        = itemView.findViewById(R.id.btnListo);
-            btnRecogido     = itemView.findViewById(R.id.btnRecogido);
-            switchPagado    = itemView.findViewById(R.id.switchPagado);
+            headerLayout   = itemView.findViewById(R.id.headerLayout);
+            contentLayout  = itemView.findViewById(R.id.contentLayout);
+            actionsLayout  = itemView.findViewById(R.id.actionsLayout);
+            tvPedidoId     = itemView.findViewById(R.id.tvPedidoId);
+            tvEstado       = itemView.findViewById(R.id.tvEstado);
+            tvAlumno       = itemView.findViewById(R.id.tvAlumno);
+            tvTotal        = itemView.findViewById(R.id.tvTotal);
+            tvRecero       = itemView.findViewById(R.id.tvRecero);
+            recyclerDetalle= itemView.findViewById(R.id.recyclerDetallePedido);
+            btnAceptar     = itemView.findViewById(R.id.btnAceptar);
+            btnRechazar    = itemView.findViewById(R.id.btnRechazar);
+            btnListo       = itemView.findViewById(R.id.btnListo);
+            btnRecogido    = itemView.findViewById(R.id.btnRecogido);
+            switchPagado   = itemView.findViewById(R.id.switchPagado);
         }
     }
 }
