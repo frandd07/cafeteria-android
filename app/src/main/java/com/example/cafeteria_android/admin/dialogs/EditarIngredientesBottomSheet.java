@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
@@ -16,32 +17,32 @@ import com.example.cafeteria_android.R;
 import com.example.cafeteria_android.api.ApiClient;
 import com.example.cafeteria_android.api.ApiService;
 import com.example.cafeteria_android.common.DetalleIngrediente;
-import com.example.cafeteria_android.common.Ingrediente;
-import com.example.cafeteria_android.common.IngredienteAdapter;
+import com.example.cafeteria_android.common.IngredienteCheckAdapter;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * BottomSheet para asignar/desasignar ingredientes a un producto.
+ */
 public class EditarIngredientesBottomSheet extends BottomSheetDialogFragment {
-
     private static final String ARG_PRODUCTO_ID = "arg_producto_id";
     private final Runnable onTerminado;
     private int productoId;
 
-    private ProgressBar pb;
-    private RecyclerView rv;
-    private Button btnGuardar;
-    private IngredienteAdapter adapter;
+    private ProgressBar pbCargando;
+    private RecyclerView rvIngredientes;
+    private Button btnGuardarIngredientes;
+    private ImageButton btnCerrarIngredientes;
+    private IngredienteCheckAdapter adapter;
     private ApiService api;
 
     public EditarIngredientesBottomSheet(int productoId, @NonNull Runnable onTerminado) {
@@ -61,65 +62,49 @@ public class EditarIngredientesBottomSheet extends BottomSheetDialogFragment {
                 .inflate(R.layout.bottomsheet_ingredientes, null);
         dlg.setContentView(view);
 
-        pb         = view.findViewById(R.id.pbCargandoIngredientes);
-        rv         = view.findViewById(R.id.rvIngredientes);
-        btnGuardar = view.findViewById(R.id.btnGuardarIngredientes);
+        // --- referencias al layout ---
+        btnCerrarIngredientes   = view.findViewById(R.id.btnCerrarIngredientes);
+        pbCargando              = view.findViewById(R.id.pbCargandoIngredientes);
+        rvIngredientes          = view.findViewById(R.id.rvIngredientes);
+        btnGuardarIngredientes  = view.findViewById(R.id.btnGuardarIngredientes);
 
-        rv.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new IngredienteAdapter();
-        rv.setAdapter(adapter);
+        // cerrar:
+        btnCerrarIngredientes.setOnClickListener(v -> dismiss());
 
-        cargarDatos();
+        // configurar RecyclerView
+        rvIngredientes.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new IngredienteCheckAdapter(new ArrayList<>());
+        rvIngredientes.setAdapter(adapter);
 
-        btnGuardar.setOnClickListener(v -> guardarAsignacion());
+        cargarIngredientesDisponibles();
+
+        btnGuardarIngredientes.setOnClickListener(v -> guardarAsignacion());
+
         return dlg;
     }
 
-    private void cargarDatos() {
-        pb.setVisibility(View.VISIBLE);
-
-        // 1️⃣ Primero obtenemos TODOS los ingredientes
-        api.getIngredientes().enqueue(new Callback<List<Ingrediente>>() {
-            @Override public void onResponse(Call<List<Ingrediente>> c1, Response<List<Ingrediente>> r1) {
-                if (!r1.isSuccessful() || r1.body() == null) {
-                    pb.setVisibility(View.GONE);
-                    return;
+    private void cargarIngredientesDisponibles() {
+        pbCargando.setVisibility(View.VISIBLE);
+        api.obtenerIngredientesProducto(productoId).enqueue(new Callback<List<DetalleIngrediente>>() {
+            @Override public void onResponse(Call<List<DetalleIngrediente>> c, Response<List<DetalleIngrediente>> r) {
+                pbCargando.setVisibility(View.GONE);
+                if (r.isSuccessful() && r.body() != null) {
+                    // convertimos DetalleIngrediente para usar getPrecio() si es necesario
+                    adapter.actualizar(r.body());
                 }
-                List<Ingrediente> todos = r1.body();
-
-                // 2️⃣ Ahora pedimos los asignados a este producto
-                api.obtenerIngredientesProducto(productoId)
-                        .enqueue(new Callback<List<DetalleIngrediente>>() {
-                            @Override public void onResponse(Call<List<DetalleIngrediente>> c2,
-                                                             Response<List<DetalleIngrediente>> r2) {
-                                pb.setVisibility(View.GONE);
-                                // Extraemos solo los IDs
-                                Set<Integer> asignados = new HashSet<>();
-                                if (r2.isSuccessful() && r2.body() != null) {
-                                    for (DetalleIngrediente di : r2.body()) {
-                                        asignados.add(di.getIngredienteId());
-                                    }
-                                }
-                                // 3️⃣ Inicializamos el adapter con todo y seleccionados
-                                adapter.setData(todos, new ArrayList<>(asignados));
-                            }
-                            @Override public void onFailure(Call<List<DetalleIngrediente>> c2, Throwable t) {
-                                pb.setVisibility(View.GONE);
-                            }
-                        });
             }
-            @Override public void onFailure(Call<List<Ingrediente>> c1, Throwable t) {
-                pb.setVisibility(View.GONE);
+            @Override public void onFailure(Call<List<DetalleIngrediente>> c, Throwable t) {
+                pbCargando.setVisibility(View.GONE);
             }
         });
     }
 
     private void guardarAsignacion() {
-        List<Ingrediente> sel = adapter.getSeleccionados();
+        List<Integer> seleccion = adapter.getSeleccionados(); // IDs de ingredientes
         List<Map<String,Object>> body = new ArrayList<>();
-        for (Ingrediente ing : sel) {
+        for (int id : seleccion) {
             Map<String,Object> m = new HashMap<>();
-            m.put("ingrediente_id", ing.getId());
+            m.put("ingrediente_id", id);
             body.add(m);
         }
         api.asignarIngredientes(productoId, body)
@@ -130,7 +115,7 @@ public class EditarIngredientesBottomSheet extends BottomSheetDialogFragment {
                             dismiss();
                         }
                     }
-                    @Override public void onFailure(Call<Void> c, Throwable t) {}
+                    @Override public void onFailure(Call<Void> c, Throwable t) { /* no-op */ }
                 });
     }
 }
