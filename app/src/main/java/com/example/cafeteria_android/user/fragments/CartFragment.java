@@ -154,7 +154,6 @@ public class CartFragment extends Fragment {
         for (CartItem c : items) {
             suma += c.getSubtotal();
         }
-        // Ahora tvTotalGeneral está correctamente tipado como TextView
         tvTotalGeneral.setText(String.format("Total: %.2f€", suma));
     }
 
