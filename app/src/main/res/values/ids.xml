@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- IDs para los SpeedDialActionItem -->
+    <item name="fab_add_product" type="id"/>
+    <item name="fab_manage_ingredients" type="id"/>
+</resources>

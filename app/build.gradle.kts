@@ -33,12 +33,16 @@ android {
 
 dependencies {
     implementation("com.github.bumptech.glide:glide:4.15.1")
+    implementation("com.leinardi.android:speed-dial:3.3.0")
+    implementation ("com.google.android.material:material:1.7.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
     implementation("com.github.GrenderG:Toasty:1.5.2")
     implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("com.google.android.material:material:1.11.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

@@ -16,6 +16,9 @@
         android:theme="@style/Theme.Cafeteriaandroid"
         tools:targetApi="31">
         <activity
+            android:name=".admin.AdminActivity"
+            android:exported="false" />
+        <activity
             android:name=".user.UserMenuActivity"
             android:exported="false" />
         <activity
