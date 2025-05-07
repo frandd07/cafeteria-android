@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- Línea principal: nombre × cantidad -->
+    <TextView
+        android:id="@+id/tvProductoCantidad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:text="Producto x1" />
+
+    <!-- Precio de esa línea -->
+    <TextView
+        android:id="@+id/tvPrecioLinea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="3.50€"
+        android:layout_marginTop="2dp"/>
+
+    <!-- Ingredientes extra (uno por línea) -->
+    <TextView
+        android:id="@+id/tvIngredientes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lechuga +0.50€\nQueso +2.00€"
+        android:layout_marginTop="4dp"
+        android:textColor="#757575"
+        android:textSize="14sp"/>
+</LinearLayout>

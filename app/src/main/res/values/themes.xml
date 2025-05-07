@@ -1,12 +1,22 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<!-- res/values/themes.xml -->
+<resources>
     <!-- Base application theme. -->
-    <style name="Base.Theme.Cafeteriaandroid" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="textAppearanceHeadlineLarge">@style/TitleFont</item>
-        <item name="textAppearanceBodyMedium">@style/BodyFont</item>
-
+    <style name="Base.Theme.Cafeteriaandroid"
+        parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Botón elevado (Raised / Filled) -->
+        <item name="materialButtonStyle">
+            @style/Widget.MaterialComponents.Button
+        </item>
+        <!-- Botón outlined -->
+        <item name="materialButtonOutlinedStyle">
+            @style/Widget.MaterialComponents.Button.OutlinedButton
+        </item>
+        <!-- Botón de texto (TextButton) -->
+        <item name="borderlessButtonStyle">
+            @style/Widget.MaterialComponents.Button.TextButton
+        </item>
     </style>
 
-    <style name="Theme.Cafeteriaandroid" parent="Base.Theme.Cafeteriaandroid" />
+    <style name="Theme.Cafeteriaandroid"
+        parent="Base.Theme.Cafeteriaandroid" />
 </resources>

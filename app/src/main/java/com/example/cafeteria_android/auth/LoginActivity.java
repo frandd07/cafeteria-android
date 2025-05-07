@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cafeteria_android.R;
+import com.example.cafeteria_android.admin.AdminActivity;
 import com.example.cafeteria_android.api.ApiClient;
 import com.example.cafeteria_android.api.ApiService;
 import com.example.cafeteria_android.api.LoginResponse;
@@ -97,7 +98,7 @@ public class LoginActivity extends AppCompatActivity {
                     ).show();
 
                     if (tipo.equals("admin")) {
-                        //startActivity(new Intent(LoginActivity.this, AdminActivity.class));
+                        startActivity(new Intent(LoginActivity.this, AdminActivity.class));
 
                     } else {
                         startActivity(new Intent(LoginActivity.this, UserMenuActivity.class));

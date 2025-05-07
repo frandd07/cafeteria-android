@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- Botón de cerrar -->
+    <ImageButton
+        android:id="@+id/btnCerrar"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_close"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Cerrar"
+        android:layout_gravity="end"/>
+
+    <!-- Nombre del producto -->
+    <EditText
+        android:id="@+id/inputNombreProducto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nombre del producto"
+        android:inputType="textCapWords"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Precio del producto -->
+    <EditText
+        android:id="@+id/inputPrecioProducto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Precio (€)"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="8dp"/>
+
+    <!-- URL de la imagen -->
+    <EditText
+        android:id="@+id/inputImagenProducto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="URL de la imagen"
+        android:inputType="textUri"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Botón crear/actualizar -->
+    <Button
+        android:id="@+id/btnCrearProducto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Crear producto"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>
