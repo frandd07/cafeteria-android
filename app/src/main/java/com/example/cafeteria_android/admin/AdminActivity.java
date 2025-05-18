@@ -17,6 +17,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.cafeteria_android.R;
+import com.example.cafeteria_android.admin.fragments.AdminHistorialPedidosFragment;
 import com.example.cafeteria_android.admin.fragments.AdminMenuFragment;
 import com.example.cafeteria_android.admin.fragments.AdminPedidosFragment;
 import com.example.cafeteria_android.admin.fragments.AdminUsuariosFragment;
@@ -111,6 +112,10 @@ public class AdminActivity extends AppCompatActivity {
             case R.id.nav_admin_pedidos:
                 selectedFragment = new AdminPedidosFragment();
                 title = "Pedidos";
+                break;
+            case R.id.nav_admin_historial:
+                selectedFragment = new AdminHistorialPedidosFragment();
+                title = "Historial";
                 break;
         }
 

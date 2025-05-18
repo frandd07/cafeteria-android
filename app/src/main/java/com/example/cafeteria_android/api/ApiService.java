@@ -145,4 +145,14 @@ public interface ApiService {
     @DELETE("/usuarios/{id}")
     Call<Void> eliminarUsuario(@Path("id") String userId);
 
+    @GET("pedidos")
+    Call<List<Pedido>> obtenerPedidosHistorial(
+            @Query("rol")    String rol,
+            @Query("user_id")String userId,
+            @Query("from")   String from,
+            @Query("to")     String to
+    );
+
 }
+
+
