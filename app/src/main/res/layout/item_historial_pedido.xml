@@ -1,56 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginVertical="8dp"
-    card_view:cardCornerRadius="8dp"
-    card_view:cardElevation="4dp"
-    card_view:cardUseCompatPadding="true">
+    android:layout_marginHorizontal="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
-        <!-- ID del pedido -->
-        <TextView
-            android:id="@+id/tvHistorialId"
-            android:layout_width="wrap_content"
+        <!-- Cabecera con solo el precio (siempre visible) -->
+        <LinearLayout
+            android:id="@+id/headerLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pedido #123"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
 
-        <!-- Fecha de creación -->
-        <TextView
-            android:id="@+id/tvHistorialFecha"
-            android:layout_width="wrap_content"
+            <!-- Total del pedido (destacado) -->
+            <TextView
+                android:id="@+id/tvHistorialTotal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Total: 2.25€"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+            <!-- Icono de expandir/colapsar -->
+            <ImageView
+                android:id="@+id/ivExpandIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_expand_more"
+                android:contentDescription="Expandir detalles"/>
+
+        </LinearLayout>
+
+        <!-- Contenido expandible -->
+        <LinearLayout
+            android:id="@+id/expandableContent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="2025-05-09 15:53"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="4dp"/>
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:visibility="gone">
 
-        <!-- Usuario que pidió -->
-        <TextView
-            android:id="@+id/tvHistorialUsuario"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nerea Fernandez"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="4dp"/>
+            <!-- Línea divisoria -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginBottom="12dp"/>
 
-        <!-- Total del pedido -->
-        <TextView
-            android:id="@+id/tvHistorialTotal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Total: 2.25€"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="4dp"/>
+            <!-- ID del pedido -->
+            <TextView
+                android:id="@+id/tvHistorialId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pedido #123"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
 
+            <!-- Fecha de creación -->
+            <TextView
+                android:id="@+id/tvHistorialFecha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2025-05-09 15:53"
+                android:textColor="#757575"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Usuario que pidió -->
+            <TextView
+                android:id="@+id/tvHistorialUsuario"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nerea Fernandez"
+                android:textColor="#757575"
+                android:textSize="14sp"/>
+
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
