@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cafeteria_android.R;
+import com.google.android.material.card.MaterialCardView;
 
 import java.util.HashSet;
 import java.util.List;
@@ -47,12 +48,28 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
         Usuario usuario = usuarios.get(pos);
         boolean expanded = expandedPositions.contains(pos);
 
+        // --- Colorear fondo del CardView según estado ---
+        if (!usuario.isVerificado()) {
+            // No verificados → rojo claro
+            h.cardRoot.setCardBackgroundColor(
+                    ContextCompat.getColor(h.cardRoot.getContext(), R.color.user_unverified_red));
+        } else if (usuario.isDebe_actualizar_curso()) {
+            // Deben actualizar → gris claro
+            h.cardRoot.setCardBackgroundColor(
+                    ContextCompat.getColor(h.cardRoot.getContext(), R.color.user_update_gray));
+        } else {
+            // Resto → blanco
+            h.cardRoot.setCardBackgroundColor(
+                    ContextCompat.getColor(h.cardRoot.getContext(), android.R.color.white));
+        }
+        // ------------------------------------------------------
+
         int green       = ContextCompat.getColor(h.itemView.getContext(), R.color.successColor);
         int defaultText = ContextCompat.getColor(h.itemView.getContext(), R.color.black);
 
         // Cabecera
         h.nombre.setText(usuario.getNombreCompleto());
-        h.email.setText(usuario.getEmail());
+        h.email .setText(usuario.getEmail());
 
         // Rotar flecha
         h.ivArrow.setRotation(expanded ? 180f : 0f);
@@ -79,7 +96,8 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
                 h.layoutCurso.setVisibility(View.VISIBLE);
                 h.curso.setText(
                         usuario.getCurso() == null || usuario.getCurso().isEmpty()
-                                ? "-" : usuario.getCurso()
+                                ? "-"
+                                : usuario.getCurso()
                 );
             }
 
@@ -94,12 +112,8 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
                 h.ivVerificado.setColorFilter(defaultText);
                 h.layoutAccion.setVisibility(View.VISIBLE);
 
-                h.btnVerificar.setOnClickListener(v ->
-                        listener.onVerificar(pos, usuario)
-                );
-                h.btnRechazar.setOnClickListener(v ->
-                        listener.onRechazar(pos, usuario)
-                );
+                h.btnVerificar.setOnClickListener(v -> listener.onVerificar(pos, usuario));
+                h.btnRechazar .setOnClickListener(v -> listener.onRechazar(pos, usuario));
             }
         }
     }
@@ -124,6 +138,7 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
     }
 
     static class UsuarioViewHolder extends RecyclerView.ViewHolder {
+        final MaterialCardView cardRoot;
         final View headerLayout, contentLayout;
         final TextView nombre, email, tipo, curso, verificado;
         final ImageView ivVerificado, ivArrow;
@@ -132,22 +147,23 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
 
         public UsuarioViewHolder(@NonNull View itemView) {
             super(itemView);
-            headerLayout  = itemView.findViewById(R.id.headerLayout);
-            contentLayout = itemView.findViewById(R.id.contentLayout);
+            cardRoot     = itemView.findViewById(R.id.cardRoot);
+            headerLayout = itemView.findViewById(R.id.headerLayout);
+            contentLayout= itemView.findViewById(R.id.contentLayout);
 
-            nombre        = itemView.findViewById(R.id.tvNombre);
-            email         = itemView.findViewById(R.id.tvEmail);
-            tipo          = itemView.findViewById(R.id.tvTipo);
-            curso         = itemView.findViewById(R.id.tvCurso);
-            verificado    = itemView.findViewById(R.id.tvVerificado);
-            ivVerificado  = itemView.findViewById(R.id.ivVerificado);
-            ivArrow       = itemView.findViewById(R.id.ivExpandIcon);
+            nombre       = itemView.findViewById(R.id.tvNombre);
+            email        = itemView.findViewById(R.id.tvEmail);
+            tipo         = itemView.findViewById(R.id.tvTipo);
+            curso        = itemView.findViewById(R.id.tvCurso);
+            verificado   = itemView.findViewById(R.id.tvVerificado);
+            ivVerificado = itemView.findViewById(R.id.ivVerificado);
+            ivArrow      = itemView.findViewById(R.id.ivExpandIcon);
 
-            layoutCurso   = itemView.findViewById(R.id.layoutCurso);
-            layoutAccion  = itemView.findViewById(R.id.layoutAccion);
+            layoutCurso  = itemView.findViewById(R.id.layoutCurso);
+            layoutAccion = itemView.findViewById(R.id.layoutAccion);
 
-            btnVerificar  = itemView.findViewById(R.id.btnAceptar);
-            btnRechazar   = itemView.findViewById(R.id.btnRechazar);
+            btnVerificar = itemView.findViewById(R.id.btnAceptar);
+            btnRechazar  = itemView.findViewById(R.id.btnRechazar);
         }
     }
 }
