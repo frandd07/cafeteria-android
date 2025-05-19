@@ -22,6 +22,7 @@ import com.example.cafeteria_android.common.Usuario;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -87,10 +88,12 @@ public class PerfilFragment extends Fragment {
                             btnGuardar.setEnabled(puede);
 
                             if (!puede) {
-                                Toast.makeText(getContext(),
+                                Toasty.info(getContext(),
                                         "No puedes editar tu curso hasta el próximo ciclo",
-                                        Toast.LENGTH_LONG).show();
+                                        Toasty.LENGTH_LONG,
+                                        true).show();
                             }
+
                         } else {
                             Toast.makeText(getContext(),
                                     "Error al cargar perfil: " + response.code(),
