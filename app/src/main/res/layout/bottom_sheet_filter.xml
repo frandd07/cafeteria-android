@@ -8,62 +8,76 @@
     android:layout_height="wrap_content"
     android:background="@color/white">
 
-    <!-- Búsqueda -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutBusquedaSheet"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:boxStrokeColor="@color/main_color"
+        app:hintTextColor="@color/main_color">
 
-    app:boxStrokeColor="@color/main_color"
-    app:hintTextColor="@color/main_color">
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/inputBusquedaSheet"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColorHint="@color/main_color"/>
-</com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputBusquedaSheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/main_color"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Filtro de tipo -->
-<com.google.android.material.textfield.TextInputLayout
-style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:layout_marginTop="8dp"
-android:hint="Filtrar por tipo"
-app:boxStrokeColor="@color/main_color"
-app:hintTextColor="@color/main_color">
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Filtrar por tipo"
+        app:boxStrokeColor="@color/main_color"
+        app:hintTextColor="@color/main_color">
 
-<AutoCompleteTextView
-    android:id="@+id/spinnerTipoSheet"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"/>
-</com.google.android.material.textfield.TextInputLayout>
+        <AutoCompleteTextView
+            android:id="@+id/spinnerTipoSheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Filtro de estado -->
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Filtrar por estado"
+        app:boxStrokeColor="@color/main_color"
+        app:hintTextColor="@color/main_color">
+
+        <AutoCompleteTextView
+            android:id="@+id/spinnerEstadoSheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Botones -->
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="horizontal"
-android:gravity="end"
-android:layout_marginTop="16dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="16dp">
 
-<com.google.android.material.button.MaterialButton
-    style="@style/Widget.MaterialComponents.Button.TextButton"
-    android:id="@+id/btnClearSheet"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Limpiar"
-    android:textColor="@color/main_color"/>
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:id="@+id/btnClearSheet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Limpiar"
+            android:textColor="@color/main_color"/>
 
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/btnApplySheet"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Aplicar"
-    android:layout_marginStart="8dp"
-    android:backgroundTint="@color/main_color"
-    android:textColor="@android:color/white"/>
-</LinearLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnApplySheet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Aplicar"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/main_color"
+            android:textColor="@android:color/white"/>
+    </LinearLayout>
     </LinearLayout>
