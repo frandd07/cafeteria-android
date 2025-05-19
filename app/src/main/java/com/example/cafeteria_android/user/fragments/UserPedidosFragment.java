@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -71,25 +70,25 @@ public class UserPedidosFragment extends Fragment {
         emptyView      = v.findViewById(R.id.emptyView);
         btnEmptyAction = v.findViewById(R.id.btnEmptyAction);
 
-        rvUserPedidos.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvUserPedidos.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new UserPedidoAdapter(lista, pedido -> {
             // Eliminar pedido (solo si está en estado "rechazado")
             apiService.eliminarPedido(pedido.getId())
                     .enqueue(new Callback<Void>() {
                         @Override public void onResponse(Call<Void> call, Response<Void> r) {
                             if (r.isSuccessful()) {
-                                Toasty.success(getContext(),
+                                Toasty.success(requireContext(),
                                         "Pedido eliminado",
                                         Toasty.LENGTH_SHORT, true).show();
                                 cargarPedidos();
                             } else {
-                                Toasty.error(getContext(),
+                                Toasty.error(requireContext(),
                                         "Error al eliminar pedido",
                                         Toasty.LENGTH_SHORT, true).show();
                             }
                         }
                         @Override public void onFailure(Call<Void> call, Throwable t) {
-                            Toasty.error(getContext(),
+                            Toasty.error(requireContext(),
                                     "Error de red al eliminar",
                                     Toasty.LENGTH_SHORT, true).show();
                         }
@@ -98,7 +97,7 @@ public class UserPedidosFragment extends Fragment {
         rvUserPedidos.setAdapter(adapter);
 
         swipeRefresh.setOnRefreshListener(this::cargarPedidos);
-        btnEmptyAction .setOnClickListener(b -> {
+        btnEmptyAction.setOnClickListener(b -> {
             swipeRefresh.setRefreshing(true);
             cargarPedidos();
         });
@@ -116,27 +115,30 @@ public class UserPedidosFragment extends Fragment {
     private void cargarPedidos() {
         apiService.obtenerPedidosAdmin("user", userId)
                 .enqueue(new Callback<List<Pedido>>() {
-                    @Override
-                    public void onResponse(Call<List<Pedido>> call,
-                                           Response<List<Pedido>> resp) {
+                    @Override public void onResponse(Call<List<Pedido>> call,
+                                                     Response<List<Pedido>> resp) {
                         swipeRefresh.setRefreshing(false);
                         if (resp.isSuccessful() && resp.body() != null) {
                             lista.clear();
-                            lista.addAll(resp.body());
+                            // Filtrar fuera los pedidos ya recogidos
+                            for (Pedido p : resp.body()) {
+                                if (!"recogido".equalsIgnoreCase(p.getEstado())) {
+                                    lista.add(p);
+                                }
+                            }
                             adapter.notifyDataSetChanged();
                         } else {
-                            Toast.makeText(getContext(),
+                            Toasty.error(requireContext(),
                                     "Error al cargar pedidos",
-                                    Toast.LENGTH_SHORT).show();
+                                    Toasty.LENGTH_SHORT, true).show();
                         }
                         actualizarVista();
                     }
-                    @Override
-                    public void onFailure(Call<List<Pedido>> call, Throwable t) {
+                    @Override public void onFailure(Call<List<Pedido>> call, Throwable t) {
                         swipeRefresh.setRefreshing(false);
-                        Toast.makeText(getContext(),
+                        Toasty.error(requireContext(),
                                 "Error de conexión: " + t.getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                                Toasty.LENGTH_SHORT, true).show();
                         actualizarVista();
                     }
                 });
@@ -145,7 +147,7 @@ public class UserPedidosFragment extends Fragment {
     private void actualizarVista() {
         boolean hay = !lista.isEmpty();
         rvUserPedidos.setVisibility(hay ? View.VISIBLE : View.GONE);
-        swipeRefresh .setVisibility(hay ? View.VISIBLE : View.GONE);
-        emptyView    .setVisibility(hay ? View.GONE : View.VISIBLE);
+        swipeRefresh.setVisibility(hay ? View.VISIBLE : View.GONE);
+        emptyView.setVisibility(hay ? View.GONE : View.VISIBLE);
     }
 }
