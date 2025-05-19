@@ -26,5 +26,10 @@
             android:title="Historial"
             android:icon="@drawable/ic_history" />
 
+        <item
+            android:id="@+id/nav_admin_nuevo_curso"
+            android:title="Iniciar nuevo curso"
+            android:icon="@drawable/ic_course" />
+
     </group>
 </menu>

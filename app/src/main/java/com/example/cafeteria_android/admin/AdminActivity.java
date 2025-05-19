@@ -8,8 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -17,6 +19,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.cafeteria_android.R;
+import com.example.cafeteria_android.api.ApiClient;
+import com.example.cafeteria_android.api.ApiService;
 import com.example.cafeteria_android.admin.fragments.AdminHistorialPedidosFragment;
 import com.example.cafeteria_android.admin.fragments.AdminMenuFragment;
 import com.example.cafeteria_android.admin.fragments.AdminPedidosFragment;
@@ -24,16 +28,23 @@ import com.example.cafeteria_android.admin.fragments.AdminUsuariosFragment;
 import com.example.cafeteria_android.auth.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AdminActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private NavigationView navView;
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
+
+        // Inicializar Retrofit
+        apiService = ApiClient.getClient().create(ApiService.class);
 
         // 1) Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -82,10 +93,15 @@ public class AdminActivity extends AppCompatActivity {
         });
         navView.addView(logoutView);
 
-        // 5) Listener de clicks en el menú (cambia fragmento y título)
+        // 5) Listener de clicks en el menú
         navView.setNavigationItemSelectedListener(item -> {
             drawerLayout.closeDrawer(GravityCompat.START);
-            selectFragment(item.getItemId());
+            int id = item.getItemId();
+            if (id == R.id.nav_admin_nuevo_curso) {
+                showConfirmDialog();
+            } else {
+                selectFragment(id);
+            }
             return true;
         });
 
@@ -129,6 +145,51 @@ public class AdminActivity extends AppCompatActivity {
                 getSupportActionBar().setTitle(title);
             }
         }
+    }
+
+    private void showConfirmDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("¿Iniciar un nuevo curso escolar?")
+                .setMessage("Esto hará que todos los alumnos deban actualizar su curso.")
+                .setNegativeButton("Cancelar", null)
+                .setPositiveButton("Confirmar", (dialog, which) -> iniciarNuevoCursoEnServidor())
+                .show();
+    }
+
+    private void iniciarNuevoCursoEnServidor() {
+        // Recupera token
+        SharedPreferences prefs = getSharedPreferences("APP_PREFS", MODE_PRIVATE);
+        String token = prefs.getString("access_token", "");
+
+        // Llamada Retrofit
+        Call<Void> call = apiService.iniciarNuevoCurso("Bearer " + token);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(
+                            AdminActivity.this,
+                            "Nuevo curso activado 🎓",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                } else {
+                    Toast.makeText(
+                            AdminActivity.this,
+                            "Error al activar curso: " + response.code(),
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(
+                        AdminActivity.this,
+                        "Error de red: " + t.getMessage(),
+                        Toast.LENGTH_LONG
+                ).show();
+            }
+        });
     }
 
     @Override

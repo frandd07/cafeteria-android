@@ -56,6 +56,7 @@
         android:contentDescription="Filtrar rango"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:tint="@android:color/white"/>
+        android:tint="@android:color/white"
+        android:backgroundTint="@color/main_color"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
