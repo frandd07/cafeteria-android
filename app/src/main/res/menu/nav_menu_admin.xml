@@ -21,5 +21,10 @@
             android:title="Pedidos"
             android:icon="@drawable/ic_orders" />
 
+        <item
+            android:id="@+id/nav_admin_historial"
+            android:title="Historial"
+            android:icon="@drawable/ic_history" />
+
     </group>
 </menu>
