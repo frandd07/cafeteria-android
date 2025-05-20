@@ -1,10 +1,13 @@
 package com.example.cafeteria_android.admin.fragments;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -301,32 +304,67 @@ public class AdminUsuariosFragment extends Fragment
     /** Llama al endpoint /eliminar-masivo */
     private void borrarUsuariosMasivo() {
         DeleteUsersRequest req = new DeleteUsersRequest(selectedIds);
-        apiService.eliminarUsuariosMasivo(req)
-                .enqueue(new Callback<DeleteUsersResponse>() {
-                    @Override public void onResponse(Call<DeleteUsersResponse> c,
-                                                     Response<DeleteUsersResponse> r) {
-                        if (r.isSuccessful() && r.body() != null && r.body().success) {
-                            // Eliminar de la lista local y refrescar
-                            listaUsuarios.removeIf(u -> selectedIds.contains(u.getId()));
-                            adapter.actualizarLista(listaUsuarios);
-                            Toasty.success(getContext(),
-                                    "Usuarios eliminados",
-                                    Toasty.LENGTH_SHORT, true).show();
-                        } else {
-                            String err = (r.body() != null && r.body().error != null)
-                                    ? r.body().error : String.valueOf(r.code());
-                            Toasty.error(getContext(),
-                                    "Error: " + err,
-                                    Toasty.LENGTH_LONG, true).show();
-                        }
-                        actionMode.finish();
-                    }
-                    @Override public void onFailure(Call<DeleteUsersResponse> c, Throwable t) {
-                        Toasty.error(getContext(),
-                                "Error de red",
-                                Toasty.LENGTH_LONG, true).show();
-                        actionMode.finish();
-                    }
-                });
+
+        // 0) Leer el token de las prefs donde lo guardaste en LoginActivity
+        SharedPreferences prefs = getContext()
+                .getSharedPreferences("APP_PREFS", Context.MODE_PRIVATE);
+        String rawToken = prefs.getString("access_token", null);
+        Log.d("DEBUG_TOKEN", "rawToken=" + rawToken);
+
+        if (rawToken == null) {
+            Toasty.error(getContext(),
+                    "No hay token almacenado. Vuelve a iniciar sesión.",
+                    Toasty.LENGTH_LONG, true).show();
+            actionMode.finish();
+            return;
+        }
+
+        String bearer = "Bearer " + rawToken;
+        Log.d("DEBUG_TOKEN", "bearerToken=" + bearer);
+
+        // 1) Construye la llamada con token + body
+        Call<DeleteUsersResponse> call =
+                apiService.eliminarUsuariosMasivo(bearer, req);
+
+        // 2) Log de la URL
+        Log.d("DEBUG_DELETE", "URL: " + call.request().url());
+
+        // 3) Log de los headers
+        Log.d("DEBUG_DELETE", "Headers: " + call.request().headers());
+
+        // 4) Log del JSON que se enviará
+        String jsonBody = new com.google.gson.Gson().toJson(req);
+        Log.d("DEBUG_DELETE", "Body: " + jsonBody);
+
+        // 5) Encolamos la llamada
+        call.enqueue(new Callback<DeleteUsersResponse>() {
+            @Override public void onResponse(Call<DeleteUsersResponse> c,
+                                             Response<DeleteUsersResponse> r) {
+                if (r.isSuccessful() && r.body() != null && r.body().success) {
+                    // Eliminar de la lista local y refrescar
+                    listaUsuarios.removeIf(u -> selectedIds.contains(u.getId()));
+                    adapter.actualizarLista(listaUsuarios);
+                    Toasty.success(getContext(),
+                            "Usuarios eliminados",
+                            Toasty.LENGTH_SHORT, true).show();
+                } else {
+                    String err = (r.body() != null && r.body().error != null)
+                            ? r.body().error
+                            : String.valueOf(r.code());
+                    Toasty.error(getContext(),
+                            "Error: " + err,
+                            Toasty.LENGTH_LONG, true).show();
+                }
+                actionMode.finish();
+            }
+
+            @Override public void onFailure(Call<DeleteUsersResponse> c, Throwable t) {
+                Toasty.error(getContext(),
+                        "Error de red",
+                        Toasty.LENGTH_LONG, true).show();
+                actionMode.finish();
+            }
+        });
     }
+
 }

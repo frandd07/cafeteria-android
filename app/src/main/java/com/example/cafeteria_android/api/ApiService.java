@@ -188,8 +188,14 @@ public interface ApiService {
             @Body Map<String, Object> updates
     );
 
-    @POST("/eliminar-masivo")
-    Call<DeleteUsersResponse> eliminarUsuariosMasivo(@Body DeleteUsersRequest req);
+    @POST("usuarios/eliminar-masivo")
+    Call<DeleteUsersResponse> eliminarUsuariosMasivo(
+            @Header("Authorization") String bearerToken,
+            @Body DeleteUsersRequest req
+    );
+
+
+
 
 
 
