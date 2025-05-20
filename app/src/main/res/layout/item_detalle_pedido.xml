@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textSize="16sp"
-        android:text="Producto x1" />
+        android:text="Producto x1"
+        android:fontFamily="@font/grotesk"/>
 
     <!-- Ingredientes extra (uno por línea) -->
     <TextView
@@ -20,6 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Lechuga +0.50€\nQueso +2.00€"
+        android:fontFamily="@font/grotesk"
         android:layout_marginTop="4dp"
         android:textColor="#757575"
         android:textSize="14sp"/>
