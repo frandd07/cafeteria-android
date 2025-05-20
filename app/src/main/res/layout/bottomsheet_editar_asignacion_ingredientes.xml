@@ -7,15 +7,29 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/tvTituloAsignar"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Asignar ingredientes"
-        android:fontFamily="@font/cinzel_regular"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:paddingBottom="8dp"/>
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvTituloAsignar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Asignar ingredientes"
+            android:fontFamily="@font/cinzel_regular"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp"/>
+
+        <ImageButton
+            android:id="@+id/btnCerrar"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_close"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Cerrar"
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
 
     <ProgressBar
         android:id="@+id/pbAsignar"
@@ -35,19 +49,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="12dp">
-
-        <Button
-            android:id="@+id/btnCancelarAsignacion"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Cancelar"
-            android:fontFamily="@font/cinzel_regular"
-            app:cornerRadius="12dp"
-            android:layout_marginEnd="8dp"
-            android:backgroundTint="@color/text_secondary"
-            android:textColor="@color/white"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
         <Button
             android:id="@+id/btnGuardarAsignacion"

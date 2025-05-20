@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -44,7 +45,8 @@ public class EditarAsignacionIngredientesBottomSheet extends BottomSheetDialogFr
     private Button btnGuardar;
     private IngredienteCheckAdapter adapter;
 
-    public EditarAsignacionIngredientesBottomSheet(int productoId, @NonNull Runnable onTerminado) {
+    public EditarAsignacionIngredientesBottomSheet(int productoId,
+                                                   @NonNull Runnable onTerminado) {
         Bundle args = new Bundle();
         args.putInt(ARG_PRODUCTO_ID, productoId);
         setArguments(args);
@@ -61,37 +63,46 @@ public class EditarAsignacionIngredientesBottomSheet extends BottomSheetDialogFr
                 .inflate(R.layout.bottomsheet_editar_asignacion_ingredientes, null);
         dlg.setContentView(view);
 
-        pb        = view.findViewById(R.id.pbAsignar);
-        rv        = view.findViewById(R.id.rvAsignarIngredientes);
-        btnGuardar= view.findViewById(R.id.btnGuardarAsignacion);
+        // --- referencias UI ---
+        ImageButton btnCerrar     = view.findViewById(R.id.btnCerrar);
+        pb                         = view.findViewById(R.id.pbAsignar);
+        rv                         = view.findViewById(R.id.rvAsignarIngredientes);
+        btnGuardar                 = view.findViewById(R.id.btnGuardarAsignacion);
 
+        // cerrar con la X
+        btnCerrar.setOnClickListener(v -> dismiss());
+
+        // recycler
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new IngredienteCheckAdapter();
         rv.setAdapter(adapter);
 
+        // cargar datos y guardar
         cargarDatos();
-
         btnGuardar.setOnClickListener(v -> guardarAsignacion());
+
         return dlg;
     }
 
     private void cargarDatos() {
         pb.setVisibility(View.VISIBLE);
 
-        // 1) Todos los ingredientes
         api.getIngredientes().enqueue(new Callback<List<Ingrediente>>() {
-            @Override public void onResponse(Call<List<Ingrediente>> c1, Response<List<Ingrediente>> r1) {
+            @Override public void onResponse(Call<List<Ingrediente>> c1,
+                                             Response<List<Ingrediente>> r1) {
                 if (!r1.isSuccessful() || r1.body() == null) {
                     pb.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Error al cargar ingredientes", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(),
+                            "Error al cargar ingredientes",
+                            Toast.LENGTH_SHORT).show();
                     return;
                 }
                 List<Ingrediente> all = r1.body();
 
-                // 2) IDs ya asignados
                 api.obtenerIngredientesProducto(productoId)
                         .enqueue(new Callback<List<DetalleIngrediente>>() {
-                            @Override public void onResponse(Call<List<DetalleIngrediente>> c2, Response<List<DetalleIngrediente>> r2) {
+                            @Override public void onResponse(Call<List<DetalleIngrediente>> c2,
+                                                             Response<List<DetalleIngrediente>> r2) {
                                 pb.setVisibility(View.GONE);
                                 if (r2.isSuccessful() && r2.body() != null) {
                                     List<Integer> assignedIds = new ArrayList<>();
@@ -100,18 +111,25 @@ public class EditarAsignacionIngredientesBottomSheet extends BottomSheetDialogFr
                                     }
                                     adapter.setData(all, assignedIds);
                                 } else {
-                                    Toast.makeText(getContext(), "Error al cargar asignados", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(),
+                                            "Error al cargar asignados",
+                                            Toast.LENGTH_SHORT).show();
                                 }
                             }
-                            @Override public void onFailure(Call<List<DetalleIngrediente>> c2, Throwable t) {
+                            @Override public void onFailure(Call<List<DetalleIngrediente>> c2,
+                                                            Throwable t) {
                                 pb.setVisibility(View.GONE);
-                                Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(),
+                                        "Error de red",
+                                        Toast.LENGTH_SHORT).show();
                             }
                         });
             }
             @Override public void onFailure(Call<List<Ingrediente>> c1, Throwable t) {
                 pb.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),
+                        "Error de red",
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -134,17 +152,23 @@ public class EditarAsignacionIngredientesBottomSheet extends BottomSheetDialogFr
                         pb.setVisibility(View.GONE);
                         btnGuardar.setEnabled(true);
                         if (r.isSuccessful()) {
-                            Toast.makeText(getContext(), "Asignación guardada", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(),
+                                    "Asignación guardada",
+                                    Toast.LENGTH_SHORT).show();
                             onTerminado.run();
                             dismiss();
                         } else {
-                            Toast.makeText(getContext(), "Error al guardar", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(),
+                                    "Error al guardar",
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                     @Override public void onFailure(Call<Void> c, Throwable t) {
                         pb.setVisibility(View.GONE);
                         btnGuardar.setEnabled(true);
-                        Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(),
+                                "Error de red",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
     }
