@@ -1,5 +1,6 @@
 package com.example.cafeteria_android.admin.fragments;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -105,15 +107,47 @@ public class AdminMenuFragment extends Fragment {
         rvProductos.setAdapter(adapter);
 
         speedDial = v.findViewById(R.id.speedDial);
-        speedDial.addActionItem(new SpeedDialActionItem.Builder(
-                R.id.fab_add_product, R.drawable.ic_add)
-                .setLabel("Añadir producto")
-                .create()
+// FAB principal
+        speedDial.setMainFabClosedBackgroundColor(
+                ContextCompat.getColor(requireContext(), R.color.main_color)
         );
+        speedDial.setMainFabOpenedBackgroundColor(
+                ContextCompat.getColor(requireContext(), R.color.main_color)
+        );
+        speedDial.getMainFab().setImageTintList(
+                ColorStateList.valueOf(
+                        ContextCompat.getColor(requireContext(), android.R.color.white)
+                )
+        );
+
+// Acción “Añadir producto”
         speedDial.addActionItem(new SpeedDialActionItem.Builder(
-                R.id.fab_manage_ingredients, R.drawable.ic_kitchen)
-                .setLabel("Ingredientes")
-                .create()
+                        R.id.fab_add_product,
+                        R.drawable.ic_add
+                )
+                        .setLabel("Añadir producto")
+                        .setFabBackgroundColor(
+                                ContextCompat.getColor(requireContext(), R.color.main_color)
+                        )
+                        .setFabImageTintColor(
+                                ContextCompat.getColor(requireContext(), android.R.color.white)
+                        )
+                        .create()
+        );
+
+// Acción “Ingredientes”
+        speedDial.addActionItem(new SpeedDialActionItem.Builder(
+                        R.id.fab_manage_ingredients,
+                        R.drawable.ic_kitchen
+                )
+                        .setLabel("Ingredientes")
+                        .setFabBackgroundColor(
+                                ContextCompat.getColor(requireContext(), R.color.main_color)
+                        )
+                        .setFabImageTintColor(
+                                ContextCompat.getColor(requireContext(), android.R.color.white)
+                        )
+                        .create()
         );
         speedDial.setOnActionSelectedListener(actionItem -> {
             switch (actionItem.getId()) {
