@@ -92,10 +92,16 @@ public class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.UsuarioV
         h.email .setText(u.getEmail());
         h.ivArrow.setRotation(expanded ? 180f : 0f);
 
-        // Expandible
+// Expandible
         h.contentLayout.setVisibility(expanded ? View.VISIBLE : View.GONE);
-        // Sólo show acciones si está expandido y NO estamos en selección múltiple
-        h.layoutAccion.setVisibility(expanded && selectedPositions.isEmpty() ? View.VISIBLE : View.GONE);
+
+// Mostrar/ocultar botones de acción únicamente si:
+//  1) item expandido, 2) no hay selección múltiple, 3) usuario NO verificado
+        boolean showActions = expanded
+                && selectedPositions.isEmpty()
+                && !u.isVerificado();
+        h.layoutAccion.setVisibility(showActions ? View.VISIBLE : View.GONE);
+
 
         // Listener de clicks:
         h.headerLayout.setOnLongClickListener(v -> {

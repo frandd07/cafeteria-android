@@ -21,6 +21,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -101,11 +102,22 @@ public class RegisterActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     if (response.isSuccessful()) {
-                        Toast.makeText(RegisterActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
+                        Toasty.success(
+                                RegisterActivity.this,
+                                "Registro exitoso",
+                                Toasty.LENGTH_SHORT,
+                                true
+                        ).show();
                         finish(); // Regresa al LoginActivity
                     } else {
-                        Toast.makeText(RegisterActivity.this, "Error al registrar", Toast.LENGTH_SHORT).show();
+                        Toasty.error(
+                                RegisterActivity.this,
+                                "Error al registrar",
+                                Toasty.LENGTH_SHORT,
+                                true
+                        ).show();
                     }
+
                 }
 
                 @Override
