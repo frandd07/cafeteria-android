@@ -1,5 +1,8 @@
 package com.example.cafeteria_android.common;
 
+import android.graphics.Typeface;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -10,6 +13,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -71,11 +75,25 @@ public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdap
             }
         });
 
-        // Botón “⋮”
         h.btnOpciones.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(v.getContext(), v);
-            MenuInflater inflater = popup.getMenuInflater();
-            inflater.inflate(R.menu.menu_admin_producto, popup.getMenu());
+            popup.getMenuInflater().inflate(R.menu.menu_admin_producto, popup.getMenu());
+
+            // Carga tu fuente
+            Typeface font = ResourcesCompat.getFont(v.getContext(), R.font.space_grotesk);
+            // Aplica a cada título
+            for (int i = 0; i < popup.getMenu().size(); i++) {
+                MenuItem mi = popup.getMenu().getItem(i);
+                SpannableString s = new SpannableString(mi.getTitle());
+                s.setSpan(
+                        new CustomTypefaceSpan(font),
+                        0,
+                        s.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                );
+                mi.setTitle(s);
+            }
+
             popup.setOnMenuItemClickListener(item -> {
                 switch (item.getItemId()) {
                     case R.id.action_eliminar:
@@ -91,7 +109,6 @@ public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdap
             popup.show();
         });
     }
-
     @Override
     public int getItemCount() {
         return lista.size();
