@@ -159,14 +159,20 @@ public class AdminPedidosFragment extends Fragment
         apiService.obtenerPedidosAdmin("admin", null)
                 .enqueue(new Callback<List<Pedido>>() {
                     @Override
-                    public void onResponse(Call<List<Pedido>> c,
-                                           Response<List<Pedido>> r) {
+                    public void onResponse(Call<List<Pedido>> c, Response<List<Pedido>> r) {
                         swipeRefresh.setRefreshing(false);
                         if (r.isSuccessful() && r.body() != null) {
                             listaPedidos.clear();
                             listaPedidos.addAll(r.body());
+
+                            // Filtrar aquí: solo añadir a listaFiltrada los que NO sean "recogido"
                             listaFiltrada.clear();
-                            listaFiltrada.addAll(listaPedidos);
+                            for (Pedido p : listaPedidos) {
+                                if (!"recogido".equalsIgnoreCase(p.getEstado())) {
+                                    listaFiltrada.add(p);
+                                }
+                            }
+
                             adapter.notifyDataSetChanged();
                         } else {
                             Toast.makeText(getContext(),
@@ -175,9 +181,9 @@ public class AdminPedidosFragment extends Fragment
                         }
                         actualizarVista();
                     }
+
                     @Override
-                    public void onFailure(Call<List<Pedido>> c,
-                                          Throwable t) {
+                    public void onFailure(Call<List<Pedido>> c, Throwable t) {
                         swipeRefresh.setRefreshing(false);
                         Toast.makeText(getContext(),
                                 "Error: " + t.getMessage(),
@@ -186,6 +192,7 @@ public class AdminPedidosFragment extends Fragment
                     }
                 });
     }
+
 
     private void actualizarEstado(int pedidoId, String nuevoEstado) {
         apiService.actualizarPedido(
