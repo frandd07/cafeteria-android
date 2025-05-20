@@ -55,6 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:cornerRadius="12dp"
+            android:fontFamily="@font/cinzel_regular"
             android:backgroundTint="@color/main_color"
             android:text="Guardar"/>
     </LinearLayout>

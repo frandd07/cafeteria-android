@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="Ingrediente"
+        android:fontFamily="@font/grotesk"
         android:textSize="16sp" />
 
     <EditText
@@ -18,5 +19,6 @@
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:inputType="numberDecimal"
+        android:fontFamily="@font/grotesk"
         android:gravity="end"/>
 </LinearLayout>

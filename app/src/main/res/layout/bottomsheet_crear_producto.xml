@@ -15,12 +15,25 @@
         android:contentDescription="Cerrar"
         android:layout_gravity="end"/>
 
+    <!-- Título del formulario -->
+    <TextView
+        android:id="@+id/tvTituloFormulario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Añadir producto"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/cinzel_regular"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="16dp"/>
+
     <!-- Nombre del producto -->
     <EditText
         android:id="@+id/inputNombreProducto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Nombre del producto"
+        android:fontFamily="@font/grotesk"
         android:inputType="textCapWords"
         android:layout_marginTop="8dp"/>
 
@@ -30,6 +43,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Precio (€)"
+        android:fontFamily="@font/grotesk"
         android:inputType="numberDecimal"
         android:layout_marginTop="8dp"/>
 
@@ -39,6 +53,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="URL de la imagen"
+        android:fontFamily="@font/grotesk"
         android:inputType="textUri"
         android:layout_marginTop="8dp"/>
 
@@ -48,6 +63,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Crear producto"
+        android:fontFamily="@font/cinzel_regular"
         android:backgroundTint="@color/main_color"
         android:layout_marginTop="16dp"/>
 </LinearLayout>
