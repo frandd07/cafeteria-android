@@ -49,17 +49,18 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
 
         layoutBusqueda.setHint("Buscar por nombre, email o tipo");
 
-        // Spinner de tipo
-        String[] tipos = new String[]{"Todos", "alumno", "profesor", "personal"};
+        // Spinner de tipo con layout personalizado para la lista
+        String[] tipos = new String[]{"Todos", "Alumno", "Profesor", "Personal"};
         ArrayAdapter<String> tipoAdapter = new ArrayAdapter<>(
                 requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
+                R.layout.item_dropdown,          // tu layout personalizado
+                R.id.tvDropdownItem,             // el TextView dentro de ese layout
                 tipos
         );
         spinnerTipo.setAdapter(tipoAdapter);
         spinnerTipo.setText("Todos", false);
 
-        // Spinner de estado con etiquetas amigables
+        // Spinner de estado con layout personalizado
         final String[] labels = new String[]{
                 "Todos",
                 "No verificados",
@@ -68,7 +69,8 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
         };
         ArrayAdapter<String> estadoAdapter = new ArrayAdapter<>(
                 requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
+                R.layout.item_dropdown,
+                R.id.tvDropdownItem,
                 labels
         );
         spinnerEstado.setAdapter(estadoAdapter);
