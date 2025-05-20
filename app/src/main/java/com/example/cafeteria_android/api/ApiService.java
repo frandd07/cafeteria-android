@@ -1,5 +1,7 @@
 package com.example.cafeteria_android.api;
 
+import com.example.cafeteria_android.common.DeleteUsersRequest;
+import com.example.cafeteria_android.common.DeleteUsersResponse;
 import com.example.cafeteria_android.common.DetalleIngrediente;
 import com.example.cafeteria_android.common.FavoritoId;
 import com.example.cafeteria_android.common.Ingrediente;
@@ -185,6 +187,10 @@ public interface ApiService {
             @Header("Authorization") String bearerToken,
             @Body Map<String, Object> updates
     );
+
+    @POST("/eliminar-masivo")
+    Call<DeleteUsersResponse> eliminarUsuariosMasivo(@Body DeleteUsersRequest req);
+
 
 
 }
