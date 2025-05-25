@@ -41,6 +41,11 @@ public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdap
         this.listener = listener;
     }
 
+    /** Permite acceder al listado interno para actualizaciones parciales. */
+    public List<Producto> getLista() {
+        return lista;
+    }
+
     public void actualizarLista(@NonNull List<Producto> nuevos) {
         lista.clear();
         lista.addAll(nuevos);
@@ -57,7 +62,6 @@ public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder h, int pos) {
         Producto p = lista.get(pos);
-
         h.tvNombre.setText(p.getNombre());
         h.tvPrecio.setText(String.format(Locale.getDefault(), "%.2f €", p.getPrecio()));
         Glide.with(h.ivImagen.getContext())
@@ -66,7 +70,8 @@ public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdap
                 .error(R.drawable.ic_delete)
                 .into(h.ivImagen);
 
-        // toggle habilitado/deshabilitado
+        // Toggle habilitado/deshabilitado
+        h.swHabilitado.setOnCheckedChangeListener(null);
         h.swHabilitado.setChecked(p.isHabilitado());
         h.swHabilitado.setOnCheckedChangeListener((btn, isChecked) -> {
             if (p.isHabilitado() != isChecked) {
@@ -74,33 +79,26 @@ public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdap
             }
         });
 
-        // “⋮” options button
+        // Menú de opciones “⋮”
         h.btnOpciones.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(v.getContext(), v);
             popup.getMenuInflater().inflate(R.menu.menu_admin_producto, popup.getMenu());
 
-            // 1) load your font and apply to each menu item
+            // Aplica tipografía personalizada
             Typeface font = ResourcesCompat.getFont(v.getContext(), R.font.space_grotesk);
             for (int i = 0; i < popup.getMenu().size(); i++) {
                 MenuItem mi = popup.getMenu().getItem(i);
                 SpannableString s = new SpannableString(mi.getTitle());
-                s.setSpan(
-                        new CustomTypefaceSpan(font),
-                        0, s.length(),
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                );
+                s.setSpan(new CustomTypefaceSpan(font), 0, s.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 mi.setTitle(s);
             }
 
-            // 2) handle selection
             popup.setOnMenuItemClickListener(item -> {
                 switch (item.getItemId()) {
                     case R.id.action_eliminar:
-                        // inflate your custom delete-confirmation layout
                         View dlgView = LayoutInflater.from(v.getContext())
                                 .inflate(R.layout.dialog_eliminar_producto, null, false);
-
-                        // build the dialog with Material overlay theme
                         AlertDialog dlg = new MaterialAlertDialogBuilder(
                                 v.getContext(),
                                 com.google.android.material.R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog
@@ -108,24 +106,16 @@ public class AdminProductoAdapter extends RecyclerView.Adapter<AdminProductoAdap
                                 .setView(dlgView)
                                 .setCancelable(true)
                                 .create();
-
-                        // wire up its buttons
                         MaterialButton btnCancel = dlgView.findViewById(R.id.btnCancel);
                         MaterialButton btnDelete = dlgView.findViewById(R.id.btnDelete);
                         TextView tvMessage      = dlgView.findViewById(R.id.tvCustomMessage);
 
-                        // personalize text
-                        tvMessage.setText(
-                                "¿Seguro que deseas eliminar “" + p.getNombre() + "”?"
-                        );
-
+                        tvMessage.setText("¿Seguro que deseas eliminar “" + p.getNombre() + "”?");
                         btnCancel.setOnClickListener(x -> dlg.dismiss());
                         btnDelete.setOnClickListener(x -> {
                             listener.onEliminar(p);
                             dlg.dismiss();
                         });
-
-                        // show it!
                         dlg.show();
                         return true;
 

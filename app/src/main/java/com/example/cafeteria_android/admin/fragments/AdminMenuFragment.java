@@ -50,48 +50,46 @@ public class AdminMenuFragment extends Fragment {
 
         rvProductos = v.findViewById(R.id.recyclerAdminProductos);
         api         = ApiClient.getClient().create(ApiService.class);
+
         adapter     = new AdminProductoAdapter(new AdminProductoAdapter.OnProductoActionListener() {
             @Override
             public void onToggleHabilitado(@NonNull Producto producto, boolean habilitado) {
                 Map<String, Object> body = Collections.singletonMap("habilitado", habilitado);
                 api.toggleProducto(producto.getId(), body)
                         .enqueue(new Callback<Void>() {
-                            @Override
-                            public void onResponse(Call<Void> c, Response<Void> r) {
-                                if (habilitado) {
-                                    Toasty.success(
-                                            getContext(),
-                                            "Producto habilitado",
-                                            Toast.LENGTH_SHORT,
-                                            true  // muestra el icono de éxito
-                                    ).show();
+                            @Override public void onResponse(Call<Void> c, Response<Void> r) {
+                                if (r.isSuccessful()) {
+                                    // Actualiza solo ese objeto y notifica cambio de posición
+                                    producto.setHabilitado(habilitado);
+                                    int pos = adapter.getLista().indexOf(producto);
+                                    if (pos != -1) {
+                                        adapter.notifyItemChanged(pos);
+                                    }
+                                    if (habilitado) {
+                                        Toasty.success(getContext(),
+                                                "Producto habilitado",
+                                                Toast.LENGTH_SHORT, true).show();
+                                    } else {
+                                        Toasty.warning(getContext(),
+                                                "Producto deshabilitado",
+                                                Toast.LENGTH_SHORT, true).show();
+                                    }
                                 } else {
-                                    Toasty.warning(
-                                            getContext(),
-                                            "Producto deshabilitado",
-                                            Toast.LENGTH_SHORT,
-                                            true  // muestra el icono de advertencia
-                                    ).show();
+                                    Toasty.error(getContext(),
+                                            "Error al cambiar estado",
+                                            Toast.LENGTH_SHORT, true).show();
                                 }
-                                cargarProductos();
                             }
-
-                            @Override
-                            public void onFailure(Call<Void> c, Throwable t) {
-                                Toasty.error(
-                                        getContext(),
+                            @Override public void onFailure(Call<Void> c, Throwable t) {
+                                Toasty.error(getContext(),
                                         "Error de red al cambiar estado",
-                                        Toast.LENGTH_SHORT,
-                                        true  // muestra el icono de error
-                                ).show();
+                                        Toast.LENGTH_SHORT, true).show();
                             }
-
                         });
             }
 
             @Override
             public void onGestionarIngredientes(@NonNull Producto producto) {
-                // Ahora abre el BottomSheet de asignación de ingredientes
                 new EditarAsignacionIngredientesBottomSheet(
                         producto.getId(),
                         AdminMenuFragment.this::cargarProductos
@@ -102,35 +100,28 @@ public class AdminMenuFragment extends Fragment {
             public void onEliminar(@NonNull Producto producto) {
                 api.eliminarProducto(producto.getId())
                         .enqueue(new Callback<Void>() {
-                            @Override
-                            public void onResponse(Call<Void> c, Response<Void> r) {
+                            @Override public void onResponse(Call<Void> c, Response<Void> r) {
                                 if (r.isSuccessful()) {
-                                    Toasty.success(
-                                            getContext(),
+                                    Toasty.success(getContext(),
                                             "Producto eliminado",
-                                            Toast.LENGTH_SHORT,
-                                            true  // muestra el icono de éxito
-                                    ).show();
-                                    cargarProductos();
+                                            Toast.LENGTH_SHORT, true).show();
+                                    // elimina de la lista y notifica
+                                    int pos = adapter.getLista().indexOf(producto);
+                                    if (pos != -1) {
+                                        adapter.getLista().remove(pos);
+                                        adapter.notifyItemRemoved(pos);
+                                    }
                                 } else {
-                                    Toasty.error(
-                                            getContext(),
+                                    Toasty.error(getContext(),
                                             "Error al eliminar producto",
-                                            Toast.LENGTH_SHORT,
-                                            true  // muestra el icono de error
-                                    ).show();
+                                            Toast.LENGTH_SHORT, true).show();
                                 }
                             }
-                            @Override
-                            public void onFailure(Call<Void> c, Throwable t) {
-                                Toasty.error(
-                                        getContext(),
+                            @Override public void onFailure(Call<Void> c, Throwable t) {
+                                Toasty.error(getContext(),
                                         "Error de red al eliminar",
-                                        Toast.LENGTH_SHORT,
-                                        true  // muestra el icono de error
-                                ).show();
+                                        Toast.LENGTH_SHORT, true).show();
                             }
-
                         });
             }
         });
@@ -139,7 +130,6 @@ public class AdminMenuFragment extends Fragment {
         rvProductos.setAdapter(adapter);
 
         speedDial = v.findViewById(R.id.speedDial);
-// FAB principal
         speedDial.setMainFabClosedBackgroundColor(
                 ContextCompat.getColor(requireContext(), R.color.main_color)
         );
@@ -152,7 +142,7 @@ public class AdminMenuFragment extends Fragment {
                 )
         );
 
-// Acción “Añadir producto”
+        // Acción “Añadir producto”
         speedDial.addActionItem(new SpeedDialActionItem.Builder(
                         R.id.fab_add_product,
                         R.drawable.ic_add
@@ -167,7 +157,7 @@ public class AdminMenuFragment extends Fragment {
                         .create()
         );
 
-// Acción “Ingredientes”
+        // Acción “Ingredientes”
         speedDial.addActionItem(new SpeedDialActionItem.Builder(
                         R.id.fab_manage_ingredients,
                         R.drawable.ic_kitchen
@@ -181,6 +171,7 @@ public class AdminMenuFragment extends Fragment {
                         )
                         .create()
         );
+
         speedDial.setOnActionSelectedListener(actionItem -> {
             switch (actionItem.getId()) {
                 case R.id.fab_add_product:
@@ -189,7 +180,6 @@ public class AdminMenuFragment extends Fragment {
                     speedDial.close();
                     return true;
                 case R.id.fab_manage_ingredients:
-                    // mantiene el global si quieres
                     new GestionIngredientesBottomSheet(this::cargarProductos)
                             .show(getChildFragmentManager(), "gestionar_ingredientes");
                     speedDial.close();
@@ -211,25 +201,17 @@ public class AdminMenuFragment extends Fragment {
                         if (resp.isSuccessful() && resp.body() != null) {
                             adapter.actualizarLista(resp.body());
                         } else {
-                            Toasty.error(
-                                    getContext(),
+                            Toasty.error(getContext(),
                                     "Error al cargar productos",
-                                    Toast.LENGTH_SHORT,
-                                    true  // muestra el icono de error
-                            ).show();
+                                    Toast.LENGTH_SHORT, true).show();
                         }
-
                     }
                     @Override
                     public void onFailure(Call<List<Producto>> call, Throwable t) {
-                        Toasty.error(
-                                getContext(),
+                        Toasty.error(getContext(),
                                 "Error de red al cargar productos",
-                                Toast.LENGTH_SHORT,
-                                true  // muestra el icono de error
-                        ).show();
+                                Toast.LENGTH_SHORT, true).show();
                     }
-
                 });
     }
 }
