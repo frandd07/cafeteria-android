@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -105,22 +106,40 @@ public class AdminPedidosFragment extends Fragment
                         apiService.eliminarPedido(pedido.getId())
                                 .enqueue(new Callback<Void>() {
                                     @Override
-                                    public void onResponse(Call<Void> c,
-                                                           Response<Void> r) {
-                                        if (r.isSuccessful()) cargarPedidos();
-                                        else Toast.makeText(getContext(),
-                                                "Error al eliminar pedido",
-                                                Toast.LENGTH_SHORT).show();
+                                    public void onResponse(Call<Void> c, Response<Void> r) {
+                                        if (r.isSuccessful()) {
+                                            // Pedido eliminado correctamente
+                                            Toasty.success(
+                                                    getContext(),
+                                                    "Pedido eliminado",
+                                                    Toast.LENGTH_SHORT,
+                                                    true
+                                            ).show();
+                                            cargarPedidos();
+                                        } else {
+                                            // Error al eliminar
+                                            Toasty.error(
+                                                    getContext(),
+                                                    "Error al eliminar pedido",
+                                                    Toast.LENGTH_SHORT,
+                                                    true
+                                            ).show();
+                                        }
                                     }
+
                                     @Override
-                                    public void onFailure(Call<Void> c,
-                                                          Throwable t) {
-                                        Toast.makeText(getContext(),
+                                    public void onFailure(Call<Void> c, Throwable t) {
+                                        // Error de red u otro
+                                        Toasty.error(
+                                                getContext(),
                                                 "Error: " + t.getMessage(),
-                                                Toast.LENGTH_SHORT).show();
+                                                Toast.LENGTH_SHORT,
+                                                true
+                                        ).show();
                                     }
                                 });
                     }
+
                     @Override
                     public void onMarcarPagado(Pedido pedido,
                                                boolean pagado) {
@@ -175,21 +194,29 @@ public class AdminPedidosFragment extends Fragment
 
                             adapter.notifyDataSetChanged();
                         } else {
-                            Toast.makeText(getContext(),
+                            Toasty.error(
+                                    getContext(),
                                     "Error al cargar pedidos",
-                                    Toast.LENGTH_SHORT).show();
+                                    Toast.LENGTH_SHORT,
+                                    true  // muestra el icono de error
+                            ).show();
                         }
+
                         actualizarVista();
                     }
 
                     @Override
                     public void onFailure(Call<List<Pedido>> c, Throwable t) {
                         swipeRefresh.setRefreshing(false);
-                        Toast.makeText(getContext(),
+                        Toasty.error(
+                                getContext(),
                                 "Error: " + t.getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                                Toast.LENGTH_SHORT,
+                                true
+                        ).show();
                         actualizarVista();
                     }
+
                 });
     }
 
@@ -200,25 +227,35 @@ public class AdminPedidosFragment extends Fragment
                 Collections.singletonMap("estado", nuevoEstado)
         ).enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<Void> c,
-                                   Response<Void> r) {
+            public void onResponse(Call<Void> c, Response<Void> r) {
                 if (r.isSuccessful()) {
-                    Toast.makeText(getContext(),
+                    Toasty.success(
+                            getContext(),
                             "Pedido " + nuevoEstado,
-                            Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT,
+                            true  // muestra el icono de éxito
+                    ).show();
                     cargarPedidos();
                 } else {
-                    Toast.makeText(getContext(),
+                    Toasty.error(
+                            getContext(),
                             "Error al actualizar",
-                            Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT,
+                            true  // muestra el icono de error
+                    ).show();
                 }
             }
+
             @Override
             public void onFailure(Call<Void> c, Throwable t) {
-                Toast.makeText(getContext(),
+                Toasty.error(
+                        getContext(),
                         "Error: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_SHORT,
+                        true  // muestra el icono de error
+                ).show();
             }
+
         });
     }
 
@@ -232,26 +269,40 @@ public class AdminPedidosFragment extends Fragment
                                    Response<Void> r) {
                 swipeRefresh.setRefreshing(false);
                 if (r.isSuccessful()) {
-                    Toast.makeText(getContext(),
-                            pagado
-                                    ? "Pedido marcado como pagado"
-                                    : "Pago desmarcado",
-                            Toast.LENGTH_SHORT).show();
+                    if (pagado) {
+                        Toasty.success(getContext(),
+                                        "Pedido marcado como pagado",
+                                        Toast.LENGTH_SHORT,
+                                        true)
+                                .show();
+                    } else {
+                        Toasty.warning(getContext(),
+                                        "Pago desmarcado",
+                                        Toast.LENGTH_SHORT,
+                                        true)
+                                .show();
+                    }
                     cargarPedidos();
                 } else {
-                    Toast.makeText(getContext(),
-                            "Error al actualizar pago",
-                            Toast.LENGTH_SHORT).show();
+                    Toasty.error(getContext(),
+                                    "Error al actualizar pago",
+                                    Toast.LENGTH_SHORT,
+                                    true)
+                            .show();
                 }
+
             }
             @Override
-            public void onFailure(Call<Void> c,
-                                  Throwable t) {
+            public void onFailure(Call<Void> c, Throwable t) {
                 swipeRefresh.setRefreshing(false);
-                Toast.makeText(getContext(),
+                Toasty.error(
+                        getContext(),
                         "Error: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_SHORT,
+                        true  // muestra el icono de error
+                ).show();
             }
+
         });
     }
 
