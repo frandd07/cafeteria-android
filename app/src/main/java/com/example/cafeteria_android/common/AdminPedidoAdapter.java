@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -56,9 +57,34 @@ public class AdminPedidoAdapter
 
         // bind header
         h.tvPedidoId.setText("Pedido #" + p.getId());
-        h.tvEstado  .setText(p.getEstado().toUpperCase(Locale.ROOT));
+        h.tvEstado  .setText(estado.substring(0,1).toUpperCase() + estado.substring(1));
         h.tvAlumno  .setText(p.getUsuario().getNombreCompleto() + " – " + p.getUsuario().getCurso());
         h.tvTotal   .setText(String.format(Locale.getDefault(), "Total: %.2f€", p.getTotal()));
+
+        // Aplica fondo según estado
+        int drawableId;
+        switch (estado) {
+            case "pendiente":
+                drawableId = R.drawable.bg_estado_pendiente;
+                break;
+            case "aceptado":
+                drawableId = R.drawable.bg_estado_aceptado;
+                break;
+            case "listo":
+                drawableId = R.drawable.bg_estado_listo;
+                break;
+            case "recogido":
+                drawableId = R.drawable.bg_estado_recogido;
+                break;
+            case "rechazado":
+                drawableId = R.drawable.bg_estado_rechazado;
+                break;
+            default:
+                drawableId = R.drawable.bg_estado_pendiente;
+        }
+        h.tvEstado.setBackground(
+                ContextCompat.getDrawable(h.itemView.getContext(), drawableId)
+        );
 
         // clean and bind recreo
         String receroRaw = p.getRecreo();
