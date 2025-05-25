@@ -111,7 +111,7 @@ public class AdminPedidosFragment extends Fragment
                                             // Pedido eliminado correctamente
                                             Toasty.success(
                                                     getContext(),
-                                                    "Pedido eliminado",
+                                                    "Pedido completado",
                                                     Toast.LENGTH_SHORT,
                                                     true
                                             ).show();
