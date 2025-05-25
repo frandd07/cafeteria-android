@@ -34,6 +34,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
@@ -103,42 +104,10 @@ public class AdminPedidosFragment extends Fragment
                     }
                     @Override
                     public void onMarcarRecogido(Pedido pedido) {
-                        apiService.eliminarPedido(pedido.getId())
-                                .enqueue(new Callback<Void>() {
-                                    @Override
-                                    public void onResponse(Call<Void> c, Response<Void> r) {
-                                        if (r.isSuccessful()) {
-                                            // Pedido eliminado correctamente
-                                            Toasty.success(
-                                                    getContext(),
-                                                    "Pedido completado",
-                                                    Toast.LENGTH_SHORT,
-                                                    true
-                                            ).show();
-                                            cargarPedidos();
-                                        } else {
-                                            // Error al eliminar
-                                            Toasty.error(
-                                                    getContext(),
-                                                    "Error al eliminar pedido",
-                                                    Toast.LENGTH_SHORT,
-                                                    true
-                                            ).show();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<Void> c, Throwable t) {
-                                        // Error de red u otro
-                                        Toasty.error(
-                                                getContext(),
-                                                "Error: " + t.getMessage(),
-                                                Toast.LENGTH_SHORT,
-                                                true
-                                        ).show();
-                                    }
-                                });
+                        // Llamamos al mismo método que usa el resto de estados
+                        actualizarEstado(pedido.getId(), "recogido");
                     }
+
 
                     @Override
                     public void onMarcarPagado(Pedido pedido,
@@ -184,10 +153,11 @@ public class AdminPedidosFragment extends Fragment
                             listaPedidos.clear();
                             listaPedidos.addAll(r.body());
 
-                            // Filtrar aquí: solo añadir a listaFiltrada los que NO sean "recogido"
+                            // Filtrar aquí: no mostrar ni "recogido" ni "rechazado"
                             listaFiltrada.clear();
                             for (Pedido p : listaPedidos) {
-                                if (!"recogido".equalsIgnoreCase(p.getEstado())) {
+                                String estado = p.getEstado().toLowerCase(Locale.ROOT);
+                                if (!estado.equals("recogido") && !estado.equals("rechazado")) {
                                     listaFiltrada.add(p);
                                 }
                             }
@@ -216,9 +186,9 @@ public class AdminPedidosFragment extends Fragment
                         ).show();
                         actualizarVista();
                     }
-
                 });
     }
+
 
 
     private void actualizarEstado(int pedidoId, String nuevoEstado) {
