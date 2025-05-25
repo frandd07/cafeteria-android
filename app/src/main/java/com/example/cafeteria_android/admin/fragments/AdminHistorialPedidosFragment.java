@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,14 +24,11 @@ import com.example.cafeteria_android.common.Pedido;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import androidx.core.util.Pair;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,11 +38,12 @@ public class AdminHistorialPedidosFragment extends Fragment {
     private static final String TAG = "HistorialPedidos";
 
     private RecyclerView rvHistorial;
-    private TextView tvTotal, emptyView;
+    private TextView tvTotal, tvFecha, emptyView;
     private FloatingActionButton fabFilter;
     private HistorialPedidoAdapter adapter;
     private final List<Pedido> listaPedidos = new ArrayList<>();
     private ApiService apiService;
+
     // Para parsear las fechas del JSON
     private final SimpleDateFormat isoParser = new SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ss.SSSSSS", Locale.getDefault()
@@ -52,6 +51,10 @@ public class AdminHistorialPedidosFragment extends Fragment {
     // Para construir from/to
     private final SimpleDateFormat isoBuilder = new SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()
+    );
+    // Para mostrarle al usuario el rango
+    private final SimpleDateFormat displayFormat = new SimpleDateFormat(
+            "dd/MM/yyyy", Locale.getDefault()
     );
 
     @Override
@@ -72,16 +75,20 @@ public class AdminHistorialPedidosFragment extends Fragment {
         apiService  = ApiClient.getClient().create(ApiService.class);
         rvHistorial = view.findViewById(R.id.rvHistorial);
         tvTotal     = view.findViewById(R.id.tvTotal);
+        tvFecha     = view.findViewById(R.id.tvFecha);       // bind del nuevo TextView
         emptyView   = view.findViewById(R.id.emptyView);
         fabFilter   = view.findViewById(R.id.fabFilter);
 
+        // Setup RecyclerView
         rvHistorial.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new HistorialPedidoAdapter(listaPedidos);
         rvHistorial.setAdapter(adapter);
 
-        // Primera carga: todos los 'recogido', sin filtro de fecha
+        // Estado inicial: sin filtro → muestra "Todos"
+        tvFecha.setText("Rango: Todos");
         cargarHistorial(null, null);
 
+        // Listener del FAB para seleccionar rango
         fabFilter.setOnClickListener(v -> {
             MaterialDatePicker<Pair<Long, Long>> picker =
                     MaterialDatePicker.Builder.<Pair<Long, Long>>dateRangePicker()
@@ -89,23 +96,36 @@ public class AdminHistorialPedidosFragment extends Fragment {
                             .build();
             picker.show(getParentFragmentManager(), "RANGE_PICKER");
             picker.addOnPositiveButtonClickListener(range -> {
-                // from al inicio del primer día
-                String from = isoBuilder.format(new Date(range.first));
-                // to al final del segundo día (+ 23:59:59)
-                long endMs = range.second + 86_399_000L;
-                String to = isoBuilder.format(new Date(endMs));
+                // Convierte los timestamps a Date
+                Date dFrom = new Date(range.first);
+                // Añade 23:59:59 al final del segundo día
+                Date dTo   = new Date(range.second + 86_399_000L);
+
+                // Formatea para la API
+                String from = isoBuilder.format(dFrom);
+                String to   = isoBuilder.format(dTo);
                 Log.d(TAG, "Filtrando de " + from + " a " + to);
+
+                // Actualiza el TextView con formato dd/MM/yyyy
+                String textoFecha = "Rango: "
+                        + displayFormat.format(dFrom)
+                        + " – "
+                        + displayFormat.format(dTo);
+                tvFecha.setText(textoFecha);
+
+                // Lanza la recarga del historial
                 cargarHistorial(from, to);
             });
         });
     }
 
     /**
+     * Carga el historial de pedidos, filtrando por estado "recogido" y opcionalmente por rango.
+     *
      * @param from ISO 'yyyy-MM-dd'T'HH:mm:ss' o null
      * @param to   ISO 'yyyy-MM-dd'T'HH:mm:ss' o null
      */
     private void cargarHistorial(@Nullable String from, @Nullable String to) {
-        // Pedimos siempre estado="recogido" al servidor
         Call<List<Pedido>> call = apiService
                 .obtenerPedidosHistorial("admin", "recogido", from, to);
 
@@ -123,27 +143,20 @@ public class AdminHistorialPedidosFragment extends Fragment {
 
                 List<Pedido> filtrados = new ArrayList<>();
                 for (Pedido p : response.body()) {
-                    // 1) Filtrar estrictamente por estado "recogido"
-                    if (!"recogido".equalsIgnoreCase(p.getEstado())) {
-                        continue;
-                    }
-
-                    // 2) Si no hay rango, lo aceptamos
+                    if (!"recogido".equalsIgnoreCase(p.getEstado())) continue;
                     if (from == null || to == null) {
                         filtrados.add(p);
                         continue;
                     }
-
-                    // 3) Si hay from/to, filtramos también por fechas
                     try {
                         Date fecha = isoParser.parse(p.getCreadoEn());
                         Date dFrom = isoBuilder.parse(from);
                         Date dTo   = isoBuilder.parse(to);
-                        if (!fecha.before(dFrom) && !fecha.after(dTo)) {
+                        if (fecha != null && !fecha.before(dFrom) && !fecha.after(dTo)) {
                             filtrados.add(p);
                         }
                     } catch (Exception e) {
-                        // Si falla el parse, descartamos
+                        // Ignorar errores de parseo
                     }
                 }
 
@@ -151,7 +164,7 @@ public class AdminHistorialPedidosFragment extends Fragment {
                 listaPedidos.addAll(filtrados);
                 adapter.notifyDataSetChanged();
 
-                // Recalcula total
+                // Recalcula y muestra el total
                 double suma = 0;
                 for (Pedido p : listaPedidos) suma += p.getTotal();
                 tvTotal.setText(
@@ -162,7 +175,6 @@ public class AdminHistorialPedidosFragment extends Fragment {
                         listaPedidos.isEmpty() ? View.VISIBLE : View.GONE
                 );
             }
-
 
             @Override
             public void onFailure(@NonNull Call<List<Pedido>> call,
