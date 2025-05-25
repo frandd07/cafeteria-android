@@ -30,6 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Pedido #123"
+                android:fontFamily="@font/cinzel_regular"
                 android:textSize="16sp"
                 android:textColor="#212121"
                 android:textStyle="bold"/>
@@ -42,6 +43,7 @@
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="4dp"
                 android:text="Pendiente"
+                android:fontFamily="@font/space_grotesk"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"/>
         </LinearLayout>
@@ -74,6 +76,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:text="22 abril 2025, 15:00"
+                    android:fontFamily="@font/space_grotesk"
                     android:textColor="#757575"
                     android:textSize="14sp"/>
             </LinearLayout>
@@ -97,6 +100,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:text="Pagado"
+                    android:fontFamily="@font/space_grotesk"
                     android:textColor="#4CAF50"
                     android:textSize="14sp"/>
             </LinearLayout>
@@ -114,6 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Detalle del pedido"
+                android:fontFamily="@font/cinzel_regular"
                 android:textSize="14sp"
                 android:textColor="#616161"
                 android:layout_marginBottom="8dp"/>
@@ -144,6 +149,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Total"
+                    android:fontFamily="@font/cinzel_regular"
                     android:textSize="16sp"
                     android:textColor="#212121"/>
 
@@ -152,6 +158,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="12.50€"
+                    android:fontFamily="@font/grotesk"
                     android:textStyle="bold"
                     android:textSize="18sp"
                     android:textColor="#212121"
