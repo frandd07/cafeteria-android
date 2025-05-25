@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -55,17 +56,36 @@ public class AdminMenuFragment extends Fragment {
                 Map<String, Object> body = Collections.singletonMap("habilitado", habilitado);
                 api.toggleProducto(producto.getId(), body)
                         .enqueue(new Callback<Void>() {
-                            @Override public void onResponse(Call<Void> c, Response<Void> r) {
-                                Toast.makeText(getContext(),
-                                        habilitado ? "Producto habilitado" : "Producto deshabilitado",
-                                        Toast.LENGTH_SHORT).show();
+                            @Override
+                            public void onResponse(Call<Void> c, Response<Void> r) {
+                                if (habilitado) {
+                                    Toasty.success(
+                                            getContext(),
+                                            "Producto habilitado",
+                                            Toast.LENGTH_SHORT,
+                                            true  // muestra el icono de éxito
+                                    ).show();
+                                } else {
+                                    Toasty.warning(
+                                            getContext(),
+                                            "Producto deshabilitado",
+                                            Toast.LENGTH_SHORT,
+                                            true  // muestra el icono de advertencia
+                                    ).show();
+                                }
                                 cargarProductos();
                             }
-                            @Override public void onFailure(Call<Void> c, Throwable t) {
-                                Toast.makeText(getContext(),
+
+                            @Override
+                            public void onFailure(Call<Void> c, Throwable t) {
+                                Toasty.error(
+                                        getContext(),
                                         "Error de red al cambiar estado",
-                                        Toast.LENGTH_SHORT).show();
+                                        Toast.LENGTH_SHORT,
+                                        true  // muestra el icono de error
+                                ).show();
                             }
+
                         });
             }
 
@@ -82,23 +102,35 @@ public class AdminMenuFragment extends Fragment {
             public void onEliminar(@NonNull Producto producto) {
                 api.eliminarProducto(producto.getId())
                         .enqueue(new Callback<Void>() {
-                            @Override public void onResponse(Call<Void> c, Response<Void> r) {
+                            @Override
+                            public void onResponse(Call<Void> c, Response<Void> r) {
                                 if (r.isSuccessful()) {
-                                    Toast.makeText(getContext(),
+                                    Toasty.success(
+                                            getContext(),
                                             "Producto eliminado",
-                                            Toast.LENGTH_SHORT).show();
+                                            Toast.LENGTH_SHORT,
+                                            true  // muestra el icono de éxito
+                                    ).show();
                                     cargarProductos();
                                 } else {
-                                    Toast.makeText(getContext(),
+                                    Toasty.error(
+                                            getContext(),
                                             "Error al eliminar producto",
-                                            Toast.LENGTH_SHORT).show();
+                                            Toast.LENGTH_SHORT,
+                                            true  // muestra el icono de error
+                                    ).show();
                                 }
                             }
-                            @Override public void onFailure(Call<Void> c, Throwable t) {
-                                Toast.makeText(getContext(),
+                            @Override
+                            public void onFailure(Call<Void> c, Throwable t) {
+                                Toasty.error(
+                                        getContext(),
                                         "Error de red al eliminar",
-                                        Toast.LENGTH_SHORT).show();
+                                        Toast.LENGTH_SHORT,
+                                        true  // muestra el icono de error
+                                ).show();
                             }
+
                         });
             }
         });
@@ -179,16 +211,25 @@ public class AdminMenuFragment extends Fragment {
                         if (resp.isSuccessful() && resp.body() != null) {
                             adapter.actualizarLista(resp.body());
                         } else {
-                            Toast.makeText(getContext(),
+                            Toasty.error(
+                                    getContext(),
                                     "Error al cargar productos",
-                                    Toast.LENGTH_SHORT).show();
+                                    Toast.LENGTH_SHORT,
+                                    true  // muestra el icono de error
+                            ).show();
                         }
+
                     }
-                    @Override public void onFailure(Call<List<Producto>> call, Throwable t) {
-                        Toast.makeText(getContext(),
+                    @Override
+                    public void onFailure(Call<List<Producto>> call, Throwable t) {
+                        Toasty.error(
+                                getContext(),
                                 "Error de red al cargar productos",
-                                Toast.LENGTH_SHORT).show();
+                                Toast.LENGTH_SHORT,
+                                true  // muestra el icono de error
+                        ).show();
                     }
+
                 });
     }
 }
