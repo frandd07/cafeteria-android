@@ -1,0 +1,13 @@
+<resources>
+    <string-array name="cursos_array">
+        <item>1º ESO A</item>
+        <item>1º ESO B</item>
+        <item>2º ESO A</item>
+        <item>2º ESO B</item>
+        <item>3º ESO A</item>
+        <item>3º ESO B</item>
+        <item>4º ESO</item>
+        <item>1º Bachillerato</item>
+        <item>2º Bachillerato</item>
+    </string-array>
+</resources>
