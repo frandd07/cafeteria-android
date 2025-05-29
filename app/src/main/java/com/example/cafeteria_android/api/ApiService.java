@@ -194,6 +194,8 @@ public interface ApiService {
             @Body DeleteUsersRequest req
     );
 
+    @DELETE("ingredientes/{id}")
+    Call<Void> deleteIngrediente(@Path("id") int id);
 
 
 

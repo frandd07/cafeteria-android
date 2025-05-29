@@ -55,10 +55,10 @@ public class GestionIngredientesBottomSheet extends BottomSheetDialogFragment {
                 .inflate(R.layout.bottomsheet_gestion_ingredientes, null);
         dialog.setContentView(view);
 
-        pb        = view.findViewById(R.id.pbCargando);
-        rv        = view.findViewById(R.id.rvIngredientes);
-        btnGuardar= view.findViewById(R.id.btnGuardarPrecios);
-        fabAdd    = view.findViewById(R.id.fabAddIngrediente);
+        pb         = view.findViewById(R.id.pbCargando);
+        rv         = view.findViewById(R.id.rvIngredientes);
+        btnGuardar = view.findViewById(R.id.btnGuardarPrecios);
+        fabAdd     = view.findViewById(R.id.fabAddIngrediente);
 
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
         loadIngredientes();
@@ -80,19 +80,66 @@ public class GestionIngredientesBottomSheet extends BottomSheetDialogFragment {
         api.getIngredientes()
                 .enqueue(new Callback<List<Ingrediente>>() {
                     @Override
-                    public void onResponse(Call<List<Ingrediente>> call, Response<List<Ingrediente>> resp) {
+                    public void onResponse(Call<List<Ingrediente>> call,
+                                           Response<List<Ingrediente>> resp) {
                         pb.setVisibility(View.GONE);
-                        if (resp.isSuccessful() && resp.body() != null) {
-                            adapter = new IngredientePrecioAdapter(
-                                    resp.body(),
-                                    (id, price) -> { /* no-op or immediate UI feedback */ }
-                            );
-                            rv.setAdapter(adapter);
-                        } else {
+                        if (!resp.isSuccessful() || resp.body() == null) {
                             Toast.makeText(getContext(),
                                     "Error al cargar ingredientes", Toast.LENGTH_SHORT).show();
+                            return;
                         }
+
+                        List<Ingrediente> lista = resp.body();
+
+                        // Construimos el mapa de precios iniciales
+                        Map<Integer, Double> preciosIniciales = new HashMap<>();
+                        for (Ingrediente ing : lista) {
+                            preciosIniciales.put(ing.getId(), ing.getPrecio());
+                        }
+
+                        // Creamos el adapter con listener de borrado
+                        adapter = new IngredientePrecioAdapter(
+                                lista,
+                                preciosIniciales,
+                                (ingredienteId, position) -> {
+                                    // mostrar loader
+                                    pb.setVisibility(View.VISIBLE);
+                                    api.deleteIngrediente(ingredienteId)
+                                            .enqueue(new Callback<Void>() {
+                                                @Override
+                                                public void onResponse(Call<Void> call, Response<Void> r) {
+                                                    pb.setVisibility(View.GONE);
+                                                    if (r.isSuccessful()) {
+                                                        adapter.removeAt(position);
+                                                        Toasty.success(
+                                                                getContext(),
+                                                                "Ingrediente eliminado",
+                                                                Toast.LENGTH_SHORT,
+                                                                true
+                                                        ).show();
+                                                    } else {
+                                                        Toasty.error(
+                                                                getContext(),
+                                                                "No se pudo eliminar",
+                                                                Toast.LENGTH_SHORT,
+                                                                true
+                                                        ).show();
+                                                    }
+
+                                                }
+                                                @Override
+                                                public void onFailure(Call<Void> call, Throwable t) {
+                                                    pb.setVisibility(View.GONE);
+                                                    Toast.makeText(getContext(),
+                                                            "Error de red eliminando", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                }
+                        );
+
+                        rv.setAdapter(adapter);
                     }
+
                     @Override
                     public void onFailure(Call<List<Ingrediente>> call, Throwable t) {
                         pb.setVisibility(View.GONE);
@@ -112,7 +159,6 @@ public class GestionIngredientesBottomSheet extends BottomSheetDialogFragment {
         btnGuardar.setEnabled(false);
         pb.setVisibility(View.VISIBLE);
 
-        // Send one PATCH per ingredient; track completions
         AtomicInteger counter = new AtomicInteger(precios.size());
         HashMap<Integer, Boolean> results = new HashMap<>();
 
@@ -147,13 +193,10 @@ public class GestionIngredientesBottomSheet extends BottomSheetDialogFragment {
         boolean allOk = !results.containsValue(false);
         if (allOk) {
             Toasty.success(getContext(), "Precios guardados", Toast.LENGTH_SHORT, true).show();
-        } else {
-            Toasty.error(getContext(), "Algunos fallaron", Toast.LENGTH_SHORT, true).show();
-        }
-
-        if (allOk) {
             onTerminado.run();
             dismiss();
+        } else {
+            Toasty.error(getContext(), "Algunos fallaron", Toast.LENGTH_SHORT, true).show();
         }
     }
 }
