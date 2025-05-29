@@ -7,4 +7,11 @@
     <color name="divider_color">#E0E0E0</color>
     <color name="text_primary">#212121</color>
     <color name="successColor">#388E3C</color>
+    <color name="user_unverified_red">#FFCDD2</color>
+    <color name="user_update_gray">  #ECEFF1</color>
+    <color name="user_selected_yellow">#FFF9C4</color>
+    <color name="error_color">#DD2C00</color>
+
+
+
 </resources>

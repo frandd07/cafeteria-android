@@ -21,6 +21,7 @@ import com.example.cafeteria_android.common.IngredientePrecioAdapter;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,10 +79,46 @@ public class EditarIngredientesBottomSheet extends BottomSheetDialogFragment {
                                            Response<List<Ingrediente>> resp) {
                         pbCargando.setVisibility(View.GONE);
                         if (resp.isSuccessful() && resp.body() != null) {
+                            List<Ingrediente> lista = resp.body();
+
+                            // Construir mapa de precios iniciales
+                            Map<Integer, Double> preciosIniciales = new HashMap<>();
+                            for (Ingrediente ing : lista) {
+                                preciosIniciales.put(ing.getId(), ing.getPrecio());
+                            }
+
+                            // Crear adapter con listener de precio y eliminación
                             adapter = new IngredientePrecioAdapter(
-                                    resp.body(),
-                                    (id, precio) -> { /* opcional: feedback inmediato */ }
+                                    lista,
+                                    preciosIniciales,
+                                    (ingredienteId, position) -> {
+                                        // Mostrar loader
+                                        pbCargando.setVisibility(View.VISIBLE);
+                                        // Llamar al DELETE
+                                        api.deleteIngrediente(ingredienteId)
+                                                .enqueue(new Callback<Void>() {
+                                                    @Override
+                                                    public void onResponse(Call<Void> call, Response<Void> respDel) {
+                                                        pbCargando.setVisibility(View.GONE);
+                                                        if (respDel.isSuccessful()) {
+                                                            adapter.removeAt(position);
+                                                            Toast.makeText(getContext(),
+                                                                    "Ingrediente eliminado", Toast.LENGTH_SHORT).show();
+                                                        } else {
+                                                            Toast.makeText(getContext(),
+                                                                    "No se pudo eliminar", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                    @Override
+                                                    public void onFailure(Call<Void> call, Throwable t) {
+                                                        pbCargando.setVisibility(View.GONE);
+                                                        Toast.makeText(getContext(),
+                                                                "Error de red eliminando", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                    }
                             );
+
                             rvIngredientes.setAdapter(adapter);
                         } else {
                             Toast.makeText(getContext(),

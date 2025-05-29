@@ -47,6 +47,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="25 abril, 10:30"
+                    android:fontFamily="@font/grotesk"
                     android:textSize="14sp"
                     android:textColor="@color/main_color"
                     android:layout_marginTop="2dp"/>
@@ -61,6 +62,7 @@
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="6dp"
                 android:text="Pendiente"
+                android:fontFamily="@font/grotesk"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -105,6 +107,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Nerea Fernández Sánchez – 2ºESO A"
+                    android:fontFamily="@font/grotesk"
                     android:textSize="15sp"
                     android:textColor="#212121"
                     android:layout_marginStart="8dp"/>
@@ -121,6 +124,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Detalle del pedido"
+                android:fontFamily="@font/cinzel_regular"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textColor="#424242"
@@ -166,6 +170,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Total del pedido"
+                        android:fontFamily="@font/cinzel_regular"
                         android:textSize="14sp"
                         android:textColor="#757575"/>
 
@@ -174,6 +179,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="4,50€"
+                        android:fontFamily="@font/grotesk"
                         android:textStyle="bold"
                         android:textSize="18sp"
                         android:textColor="#212121"
@@ -184,6 +190,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Recreo: 0,00"
+                        android:fontFamily="@font/grotesk"
                         android:textSize="14sp"
                         android:textColor="#757575"
                         android:layout_marginTop="4dp"/>
@@ -201,6 +208,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Pagado"
+                        android:fontFamily="@font/grotesk"
                         android:layout_marginHorizontal="12dp"
                         android:layout_marginVertical="4dp"
                         app:thumbTint="@color/switch_thumb_tint"
@@ -227,6 +235,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Rechazar"
+                android:fontFamily="@font/cinzel_regular"
                 android:textColor="#F44336"
                 app:rippleColor="#20F44336"/>
 
@@ -237,6 +246,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="Aceptar"
+                android:fontFamily="@font/cinzel_regular"
                 android:backgroundTint="#4CAF50"
                 android:textColor="#FFFFFF"/>
 

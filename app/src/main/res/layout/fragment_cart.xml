@@ -39,6 +39,7 @@
             android:layout_marginTop="8dp"
             android:gravity="end"
             android:text="Total: 0,00€"
+            android:fontFamily="@font/cinzel_regular"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/main_color" />
@@ -49,6 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Confirmar compra"
+            android:fontFamily="@font/cinzel_regular"
             android:textAllCaps="false"
             android:padding="12dp"
             app:cornerRadius="8dp"
@@ -78,6 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="El carrito está vacío"
+            android:fontFamily="@font/cinzel_regular"
             android:textColor="@color/main_color"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -87,6 +90,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
+            android:fontFamily="@font/space_grotesk"
             android:text="Añade productos para verlos aquí."
             android:textColor="@color/text_secondary"
             android:textSize="16sp" />
@@ -97,6 +101,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Ver menú"
+            android:fontFamily="@font/cinzel_regular"
             android:textAllCaps="false"
             android:backgroundTint="@color/main_color"
             app:cornerRadius="8dp"

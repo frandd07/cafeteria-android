@@ -3,20 +3,22 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.Cafeteriaandroid"
         parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Botón elevado (Raised / Filled) -->
-        <item name="materialButtonStyle">
-            @style/Widget.MaterialComponents.Button
-        </item>
-        <!-- Botón outlined -->
-        <item name="materialButtonOutlinedStyle">
-            @style/Widget.MaterialComponents.Button.OutlinedButton
-        </item>
-        <!-- Botón de texto (TextButton) -->
-        <item name="borderlessButtonStyle">
-            @style/Widget.MaterialComponents.Button.TextButton
-        </item>
+        <!-- Botones -->
+        <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.MaterialComponents.Button.OutlinedButton</item>
+        <item name="borderlessButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
     </style>
 
+    <!-- Tema principal de la app -->
     <style name="Theme.Cafeteriaandroid"
-        parent="Base.Theme.Cafeteriaandroid" />
+        parent="Base.Theme.Cafeteriaandroid">
+        <!-- Color de fondo de la Toolbar / AppBar -->
+        <item name="colorPrimary">@color/main_color</item>
+        <!-- Color de la status bar (barra de notificaciones superior) -->
+        <item name="android:statusBarColor">@color/main_color</item>
+        <!-- Color de los iconos y texto sobre el primary -->
+        <item name="colorOnPrimary">@android:color/white</item>
+        <!-- Color de acentos (botones flotantes, switches, etc.) -->
+        <item name="colorAccent">@color/main_color</item>
+    </style>
 </resources>

@@ -70,7 +70,7 @@ public class CartFragment extends Fragment {
 
         apiService = ApiClient.getClient().create(ApiService.class);
 
-        rvCart.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvCart.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new CartAdapter(CartRepository.getInstance().getItems());
         rvCart.setAdapter(adapter);
 
@@ -84,14 +84,11 @@ public class CartFragment extends Fragment {
                         return false;
                     }
                     @Override public void onSwiped(@NonNull RecyclerView.ViewHolder vh, int dir) {
-                        CartItem removed = CartRepository.getInstance()
-                                .getItems()
-                                .get(vh.getAdapterPosition());
+                        CartItem removed =
+                                CartRepository.getInstance().getItems().get(vh.getAdapterPosition());
                         CartRepository.getInstance().removeItem(removed);
                         actualizarVista();
-                        Toasty.info(getContext(),
-                                removed.getProducto().getNombre() + " eliminado",
-                                Toasty.LENGTH_SHORT, true).show();
+                        // No toast on remove
                     }
                     @Override public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView rv,
                                                       @NonNull RecyclerView.ViewHolder vh,
@@ -161,8 +158,7 @@ public class CartFragment extends Fragment {
     private void confirmarCompra() {
         List<CartItem> items = CartRepository.getInstance().getItems();
         if (items.isEmpty()) {
-            Toasty.info(getContext(), "El carrito está vacío", Toasty.LENGTH_SHORT, true).show();
-            return;
+            return; // no toast
         }
 
         SharedPreferences prefs = requireContext()
@@ -172,38 +168,25 @@ public class CartFragment extends Fragment {
         String token  = prefs.getString("access_token", null);
 
         if (userId == null || token == null) {
-            Toasty.error(getContext(),
-                    "Error: usuario no identificado",
-                    Toasty.LENGTH_SHORT, true).show();
-            return;
+            return; // no toast
         }
 
         String bearer = "Bearer " + token;
         apiService.getUsuarioPorId(userId, bearer)
                 .enqueue(new Callback<Usuario>() {
-                    @Override
-                    public void onResponse(Call<Usuario> call, Response<Usuario> resp) {
+                    @Override public void onResponse(Call<Usuario> call, Response<Usuario> resp) {
+                        if (!isAdded()) return;
+
                         if (resp.isSuccessful() && resp.body() != null) {
                             Usuario u = resp.body();
-                            if (u.isDebe_actualizar_curso()) {
-                                Toasty.warning(getContext(),
-                                        "Debes actualizar tu curso antes de hacer un pedido",
-                                        Toasty.LENGTH_LONG, true).show();
-                            } else {
+                            if (!u.isDebe_actualizar_curso()) {
                                 crearPedido(items, userId, recreo);
                             }
-                        } else {
-                            Toasty.error(getContext(),
-                                    "Error comprobando perfil: " + resp.code(),
-                                    Toasty.LENGTH_LONG, true).show();
                         }
                     }
-                    @Override
-                    public void onFailure(Call<Usuario> call, Throwable t) {
-                        Log.e("CartFragment","Fallo red al comprobar perfil", t);
-                        Toasty.error(getContext(),
-                                "Error de red al comprobar perfil",
-                                Toasty.LENGTH_SHORT, true).show();
+
+                    @Override public void onFailure(Call<Usuario> call, Throwable t) {
+                        // no toast
                     }
                 });
     }
@@ -240,24 +223,22 @@ public class CartFragment extends Fragment {
         apiService.crearPedido(body)
                 .enqueue(new Callback<Pedido>() {
                     @Override public void onResponse(Call<Pedido> call, Response<Pedido> resp) {
+                        if (!isAdded()) return;
+
                         if (resp.isSuccessful() && resp.body() != null) {
-                            Toasty.success(getContext(),
+                            Toasty.success(
+                                    requireContext(),
                                     "Pedido confirmado",
-                                    Toasty.LENGTH_SHORT, true).show();
+                                    Toasty.LENGTH_SHORT,
+                                    true
+                            ).show();
                             CartRepository.getInstance().clear();
                             actualizarVista();
-                        } else {
-                            Log.e("CartFragment","Error al confirmar: code="+resp.code());
-                            Toasty.error(getContext(),
-                                    "Error al confirmar pedido",
-                                    Toasty.LENGTH_LONG, true).show();
                         }
+                        // no other toasts
                     }
                     @Override public void onFailure(Call<Pedido> call, Throwable t) {
-                        Log.e("CartFragment","Fallo red al confirmar", t);
-                        Toasty.error(getContext(),
-                                "Error de red: "+t.getMessage(),
-                                Toasty.LENGTH_SHORT, true).show();
+                        // no toast
                     }
                 });
     }
