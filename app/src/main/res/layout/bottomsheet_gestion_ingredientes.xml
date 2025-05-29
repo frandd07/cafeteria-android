@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp"
     android:layout_width="match_parent"
@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Gestionar Ingredientes"
+        android:fontFamily="@font/cinzel_regular"
         android:textSize="18sp"
         android:textStyle="bold"/>
 
@@ -38,13 +39,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_add"
-            android:contentDescription="Añadir"/>
+            android:contentDescription="Añadir"
+            android:backgroundTint="@color/main_color"
+            app:tint="@color/white"/>
 
         <Button
             android:id="@+id/btnGuardarPrecios"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Guardar cambios"
+            android:fontFamily="@font/cinzel_regular"
+            android:backgroundTint="@color/main_color"
             android:layout_marginStart="16dp"/>
     </LinearLayout>
 </LinearLayout>

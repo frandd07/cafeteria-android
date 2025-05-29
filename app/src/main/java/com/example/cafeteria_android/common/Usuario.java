@@ -9,6 +9,15 @@ public class Usuario {
     private String tipo;
     private String curso;
     private boolean verificado;
+    private boolean debe_actualizar_curso;
+
+    public boolean isDebe_actualizar_curso() {
+        return debe_actualizar_curso;
+    }
+
+    public void setDebe_actualizar_curso(boolean debe_actualizar_curso) {
+        this.debe_actualizar_curso = debe_actualizar_curso;
+    }
 
     public String getNombreCompleto() {
         return nombre + " " + apellido1 + " " + apellido2;

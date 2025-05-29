@@ -20,7 +20,8 @@
             app:navigationIcon="@drawable/ic_menu"
             app:popupTheme="@style/ThemeOverlay.Material3.Light"
             app:titleCentered="true"
-            app:titleTextColor="@color/main_color" />
+            app:titleTextColor="@color/main_color"
+            app:titleTextAppearance="@style/TextAppearance.ToolbarTitle"/>
 
         <FrameLayout
             android:id="@+id/contenedorFragmento"

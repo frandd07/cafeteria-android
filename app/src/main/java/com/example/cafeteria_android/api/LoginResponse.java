@@ -1,23 +1,40 @@
 package com.example.cafeteria_android.api;
 
-public class LoginResponse {
-    public User user;
-    public Perfil perfil;
+import com.google.gson.annotations.SerializedName;
 
-    public static class User {
-        public String id;
-        public String aud;
-        public String role;
-        public String email;
-        public String email_confirmed_at;
-        public String phone;
-        public String confirmation_sent_at;
-        public String confirmed_at;
-        public String last_sign_in_at;
-        public String created_at;
-        public String updated_at;
-        public boolean is_anonymous;
+public class LoginResponse {
+    @SerializedName("access_token")
+    public String accessToken;
+
+    @SerializedName("refresh_token")
+    public String refreshToken;
+
+    public String getAccessToken() {
+        return accessToken;
     }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public Perfil getPerfil() {
+        return perfil;
+    }
+
+    public void setPerfil(Perfil perfil) {
+        this.perfil = perfil;
+    }
+
+    @SerializedName("perfil")
+    public Perfil perfil;
 
     public static class Perfil {
         public String id;

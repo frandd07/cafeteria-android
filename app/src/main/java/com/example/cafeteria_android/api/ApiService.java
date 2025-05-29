@@ -1,5 +1,7 @@
 package com.example.cafeteria_android.api;
 
+import com.example.cafeteria_android.common.DeleteUsersRequest;
+import com.example.cafeteria_android.common.DeleteUsersResponse;
 import com.example.cafeteria_android.common.DetalleIngrediente;
 import com.example.cafeteria_android.common.FavoritoId;
 import com.example.cafeteria_android.common.Ingrediente;
@@ -15,6 +17,7 @@ import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.HTTP;
+import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
@@ -145,4 +148,59 @@ public interface ApiService {
     @DELETE("/usuarios/{id}")
     Call<Void> eliminarUsuario(@Path("id") String userId);
 
+    @GET("pedidos")
+    Call<List<Pedido>> obtenerPedidosHistorial(
+            @Query("rol")    String rol,
+            @Query("user_id")String userId,
+            @Query("from")   String from,
+            @Query("to")     String to
+    );
+
+
+    @Headers("Content-Type: application/json")
+    @PUT("/usuarios/iniciar-curso")
+    Call<Void> iniciarNuevoCurso(@Header("Authorization") String bearerToken);
+
+    // Obtener un usuario por ID
+    @GET("/usuarios/{id}")
+    Call<Usuario> getUsuarioPorId(@Path("id") String userId);
+
+    // Actualizar campos del usuario
+    @Headers("Content-Type: application/json")
+    @PATCH("/usuarios/{id}")
+    Call<Usuario> updateUsuario(
+            @Path("id") String userId,
+            @Body Map<String, Object> updates
+    );
+
+    // 1) GET usuario por ID
+    @GET("/usuarios/{id}")
+    Call<Usuario> getUsuarioPorId(
+            @Path("id") String userId,
+            @Header("Authorization") String bearerToken
+    );
+
+    // 2) PATCH actualizar usuario
+    @PATCH("/usuarios/{id}")
+    Call<Void> updateUsuario(
+            @Path("id") String userId,
+            @Header("Authorization") String bearerToken,
+            @Body Map<String, Object> updates
+    );
+
+    @POST("usuarios/eliminar-masivo")
+    Call<DeleteUsersResponse> eliminarUsuariosMasivo(
+            @Header("Authorization") String bearerToken,
+            @Body DeleteUsersRequest req
+    );
+
+    @DELETE("ingredientes/{id}")
+    Call<Void> deleteIngrediente(@Path("id") int id);
+
+
+
+
+
 }
+
+

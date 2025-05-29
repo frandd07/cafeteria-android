@@ -67,64 +67,68 @@ public class LoginActivity extends AppCompatActivity {
         body.put("email", email);
         body.put("password", password);
 
-        Call<LoginResponse> call = apiService.loginUser(body);
-        call.enqueue(new Callback<LoginResponse>() {
-            @Override
-            public void onResponse(Call<LoginResponse> call,
-                                   Response<LoginResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    LoginResponse loginResponse = response.body();
-                    String userId = loginResponse.perfil.id;
-                    String tipo   = loginResponse.perfil.tipo;
-                    String nombre = loginResponse.perfil.nombre; // Campo con el nombre de usuario
+        apiService.loginUser(body)
+                .enqueue(new Callback<LoginResponse>() {
+                    @Override
+                    public void onResponse(Call<LoginResponse> call,
+                                           Response<LoginResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            LoginResponse loginResponse = response.body();
 
-                    Log.d("LOGIN", "Login exitoso. userId: " + userId +
-                            ", tipo: " + tipo +
-                            ", nombre: " + nombre);
+                            // Extraemos datos del perfil y token
+                            String userId = loginResponse.perfil.id;
+                            String tipo   = loginResponse.perfil.tipo;
+                            String nombre = loginResponse.perfil.nombre;
+                            String token  = loginResponse.getAccessToken();  // Usa el getter del token
 
-                    SharedPreferences prefs = getSharedPreferences("APP_PREFS", MODE_PRIVATE);
-                    prefs.edit()
-                            .putString("userId", userId)
-                            .putString("rol", tipo)
-                            .putString("userName", nombre)
-                            .apply();
+                            Log.d("LOGIN", "Login exitoso. userId: " + userId +
+                                    ", tipo: " + tipo +
+                                    ", nombre: " + nombre +
+                                    ", token: " + token);
 
-                    // Toast de bienvenida con nombre
-                    Toasty.success(
-                            LoginActivity.this,
-                            "¡Bienvenido " + nombre + "!",
-                            Toast.LENGTH_SHORT,
-                            true
-                    ).show();
+                            // Guardamos en SharedPreferences
+                            SharedPreferences prefs = getSharedPreferences("APP_PREFS", MODE_PRIVATE);
+                            prefs.edit()
+                                    .putString("userId",       userId)
+                                    .putString("rol",          tipo)
+                                    .putString("userName",     nombre)
+                                    .putString("access_token", token)
+                                    .apply();
 
-                    if (tipo.equals("admin")) {
-                        startActivity(new Intent(LoginActivity.this, AdminActivity.class));
+                            Toasty.success(
+                                    LoginActivity.this,
+                                    "¡Bienvenido " + nombre + "!",
+                                    Toast.LENGTH_SHORT,
+                                    true
+                            ).show();
 
-                    } else {
-                        startActivity(new Intent(LoginActivity.this, UserMenuActivity.class));
+                            // Redirigimos según rol
+                            if ("admin".equals(tipo)) {
+                                startActivity(new Intent(LoginActivity.this, AdminActivity.class));
+                            } else {
+                                startActivity(new Intent(LoginActivity.this, UserMenuActivity.class));
+                            }
+                            finish();
+
+                        } else {
+                            Toasty.error(
+                                    LoginActivity.this,
+                                    "Credenciales incorrectas",
+                                    Toast.LENGTH_SHORT,
+                                    true).show();
+                            Log.e("LOGIN", "Error en login: " + response.code());
+                        }
                     }
-                    // Evitar volver con back al login
-                    finish();
 
-                } else {
-                    Toasty.error(
-                            LoginActivity.this,
-                            "Credenciales incorrectas",
-                            Toast.LENGTH_SHORT,
-                            true).show();
-                    Log.e("LOGIN", "Error en login: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
-                Toasty.info(
-                        LoginActivity.this,
-                        "Error de conexión",
-                        Toast.LENGTH_SHORT,
-                        true).show();
-                Log.e("LOGIN", "Fallo al conectar con backend", t);
-            }
-        });
+                    @Override
+                    public void onFailure(Call<LoginResponse> call, Throwable t) {
+                        Toasty.error(
+                                LoginActivity.this,
+                                "Error de conexión: " + t.getMessage(),
+                                Toast.LENGTH_SHORT,
+                                true).show();
+                        Log.e("LOGIN", "Fallo al conectar con backend", t);
+                    }
+                });
     }
 }

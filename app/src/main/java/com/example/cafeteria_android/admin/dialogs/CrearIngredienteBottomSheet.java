@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -92,11 +93,17 @@ public class CrearIngredienteBottomSheet extends BottomSheetDialogFragment {
                     btnCrear.setEnabled(true);
 
                     if (resp.isSuccessful()) {
-                        Toast.makeText(getContext(),
-                                "Ingrediente creado", Toast.LENGTH_SHORT).show();
+                        // Toast de éxito con Toasty
+                        Toasty.success(
+                                getContext(),
+                                "Ingrediente creado",
+                                Toast.LENGTH_SHORT,
+                                true  // muestra el icono por defecto de Toasty
+                        ).show();
+
                         onTerminado.run();
                         dismiss();
-                    } else {
+                    }else {
                         // Leemos el cuerpo de error para ver qué dice el servidor
                         String errorMsg = "Error " + resp.code();
                         try {

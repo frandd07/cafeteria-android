@@ -1,5 +1,6 @@
 package com.example.cafeteria_android.admin.fragments;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -47,6 +50,7 @@ public class AdminMenuFragment extends Fragment {
 
         rvProductos = v.findViewById(R.id.recyclerAdminProductos);
         api         = ApiClient.getClient().create(ApiService.class);
+
         adapter     = new AdminProductoAdapter(new AdminProductoAdapter.OnProductoActionListener() {
             @Override
             public void onToggleHabilitado(@NonNull Producto producto, boolean habilitado) {
@@ -54,22 +58,38 @@ public class AdminMenuFragment extends Fragment {
                 api.toggleProducto(producto.getId(), body)
                         .enqueue(new Callback<Void>() {
                             @Override public void onResponse(Call<Void> c, Response<Void> r) {
-                                Toast.makeText(getContext(),
-                                        habilitado ? "Producto habilitado" : "Producto deshabilitado",
-                                        Toast.LENGTH_SHORT).show();
-                                cargarProductos();
+                                if (r.isSuccessful()) {
+                                    // Actualiza solo ese objeto y notifica cambio de posición
+                                    producto.setHabilitado(habilitado);
+                                    int pos = adapter.getLista().indexOf(producto);
+                                    if (pos != -1) {
+                                        adapter.notifyItemChanged(pos);
+                                    }
+                                    if (habilitado) {
+                                        Toasty.success(getContext(),
+                                                "Producto habilitado",
+                                                Toast.LENGTH_SHORT, true).show();
+                                    } else {
+                                        Toasty.warning(getContext(),
+                                                "Producto deshabilitado",
+                                                Toast.LENGTH_SHORT, true).show();
+                                    }
+                                } else {
+                                    Toasty.error(getContext(),
+                                            "Error al cambiar estado",
+                                            Toast.LENGTH_SHORT, true).show();
+                                }
                             }
                             @Override public void onFailure(Call<Void> c, Throwable t) {
-                                Toast.makeText(getContext(),
+                                Toasty.error(getContext(),
                                         "Error de red al cambiar estado",
-                                        Toast.LENGTH_SHORT).show();
+                                        Toast.LENGTH_SHORT, true).show();
                             }
                         });
             }
 
             @Override
             public void onGestionarIngredientes(@NonNull Producto producto) {
-                // Ahora abre el BottomSheet de asignación de ingredientes
                 new EditarAsignacionIngredientesBottomSheet(
                         producto.getId(),
                         AdminMenuFragment.this::cargarProductos
@@ -82,20 +102,25 @@ public class AdminMenuFragment extends Fragment {
                         .enqueue(new Callback<Void>() {
                             @Override public void onResponse(Call<Void> c, Response<Void> r) {
                                 if (r.isSuccessful()) {
-                                    Toast.makeText(getContext(),
+                                    Toasty.success(getContext(),
                                             "Producto eliminado",
-                                            Toast.LENGTH_SHORT).show();
-                                    cargarProductos();
+                                            Toast.LENGTH_SHORT, true).show();
+                                    // elimina de la lista y notifica
+                                    int pos = adapter.getLista().indexOf(producto);
+                                    if (pos != -1) {
+                                        adapter.getLista().remove(pos);
+                                        adapter.notifyItemRemoved(pos);
+                                    }
                                 } else {
-                                    Toast.makeText(getContext(),
+                                    Toasty.error(getContext(),
                                             "Error al eliminar producto",
-                                            Toast.LENGTH_SHORT).show();
+                                            Toast.LENGTH_SHORT, true).show();
                                 }
                             }
                             @Override public void onFailure(Call<Void> c, Throwable t) {
-                                Toast.makeText(getContext(),
+                                Toasty.error(getContext(),
                                         "Error de red al eliminar",
-                                        Toast.LENGTH_SHORT).show();
+                                        Toast.LENGTH_SHORT, true).show();
                             }
                         });
             }
@@ -105,16 +130,48 @@ public class AdminMenuFragment extends Fragment {
         rvProductos.setAdapter(adapter);
 
         speedDial = v.findViewById(R.id.speedDial);
-        speedDial.addActionItem(new SpeedDialActionItem.Builder(
-                R.id.fab_add_product, R.drawable.ic_add)
-                .setLabel("Añadir producto")
-                .create()
+        speedDial.setMainFabClosedBackgroundColor(
+                ContextCompat.getColor(requireContext(), R.color.main_color)
         );
-        speedDial.addActionItem(new SpeedDialActionItem.Builder(
-                R.id.fab_manage_ingredients, R.drawable.ic_kitchen)
-                .setLabel("Ingredientes")
-                .create()
+        speedDial.setMainFabOpenedBackgroundColor(
+                ContextCompat.getColor(requireContext(), R.color.main_color)
         );
+        speedDial.getMainFab().setImageTintList(
+                ColorStateList.valueOf(
+                        ContextCompat.getColor(requireContext(), android.R.color.white)
+                )
+        );
+
+        // Acción “Añadir producto”
+        speedDial.addActionItem(new SpeedDialActionItem.Builder(
+                        R.id.fab_add_product,
+                        R.drawable.ic_add
+                )
+                        .setLabel("Añadir producto")
+                        .setFabBackgroundColor(
+                                ContextCompat.getColor(requireContext(), R.color.main_color)
+                        )
+                        .setFabImageTintColor(
+                                ContextCompat.getColor(requireContext(), android.R.color.white)
+                        )
+                        .create()
+        );
+
+        // Acción “Ingredientes”
+        speedDial.addActionItem(new SpeedDialActionItem.Builder(
+                        R.id.fab_manage_ingredients,
+                        R.drawable.ic_kitchen
+                )
+                        .setLabel("Ingredientes")
+                        .setFabBackgroundColor(
+                                ContextCompat.getColor(requireContext(), R.color.main_color)
+                        )
+                        .setFabImageTintColor(
+                                ContextCompat.getColor(requireContext(), android.R.color.white)
+                        )
+                        .create()
+        );
+
         speedDial.setOnActionSelectedListener(actionItem -> {
             switch (actionItem.getId()) {
                 case R.id.fab_add_product:
@@ -123,7 +180,6 @@ public class AdminMenuFragment extends Fragment {
                     speedDial.close();
                     return true;
                 case R.id.fab_manage_ingredients:
-                    // mantiene el global si quieres
                     new GestionIngredientesBottomSheet(this::cargarProductos)
                             .show(getChildFragmentManager(), "gestionar_ingredientes");
                     speedDial.close();
@@ -145,15 +201,16 @@ public class AdminMenuFragment extends Fragment {
                         if (resp.isSuccessful() && resp.body() != null) {
                             adapter.actualizarLista(resp.body());
                         } else {
-                            Toast.makeText(getContext(),
+                            Toasty.error(getContext(),
                                     "Error al cargar productos",
-                                    Toast.LENGTH_SHORT).show();
+                                    Toast.LENGTH_SHORT, true).show();
                         }
                     }
-                    @Override public void onFailure(Call<List<Producto>> call, Throwable t) {
-                        Toast.makeText(getContext(),
+                    @Override
+                    public void onFailure(Call<List<Producto>> call, Throwable t) {
+                        Toasty.error(getContext(),
                                 "Error de red al cargar productos",
-                                Toast.LENGTH_SHORT).show();
+                                Toast.LENGTH_SHORT, true).show();
                     }
                 });
     }

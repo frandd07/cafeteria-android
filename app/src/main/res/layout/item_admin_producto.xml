@@ -37,6 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="0.00 €"
+            android:fontFamily="@font/space_grotesk"
             android:layout_marginTop="4dp"/>
 
         <LinearLayout
@@ -51,6 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Habilitado"
+                android:fontFamily="@font/space_grotesk"
                 app:thumbTint="@color/switch_thumb_tint"
                 app:trackTint="@color/switch_track_tint"/>
 

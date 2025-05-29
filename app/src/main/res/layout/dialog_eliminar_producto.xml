@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dialog_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Your icon, if any -->
+    <ImageView
+        android:id="@+id/ivDialogIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/ic_delete"
+        app:tint="@color/main_color"
+        android:contentDescription="@null"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Message -->
+    <TextView
+        android:id="@+id/tvCustomMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/grotesk"
+        android:text="¿Seguro que deseas eliminar este producto?"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textAlignment="center"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Buttons container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancelar"
+            android:fontFamily="@font/cinzel_regular"
+            android:textColor="@color/main_color"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDelete"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Eliminar"
+            android:fontFamily="@font/cinzel_regular"
+            android:backgroundTint="@color/main_color"
+            android:textColor="@color/white"
+            android:layout_marginStart="8dp"
+            />
+    </LinearLayout>
+</LinearLayout>
