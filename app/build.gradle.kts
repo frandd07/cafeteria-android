@@ -32,6 +32,7 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.code.gson:gson:2.10.1")
     implementation("com.github.bumptech.glide:glide:4.15.1")
     implementation("com.leinardi.android:speed-dial:3.3.0")
     implementation ("com.google.android.material:material:1.7.0")
