@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -31,6 +32,7 @@ import com.example.cafeteria_android.common.DetalleIngrediente;
 import com.example.cafeteria_android.common.Pedido;
 import com.example.cafeteria_android.common.Usuario;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -226,16 +228,39 @@ public class CartFragment extends Fragment {
                         if (!isAdded()) return;
 
                         if (resp.isSuccessful() && resp.body() != null) {
+                            // 1) Aviso
                             Toasty.success(
                                     requireContext(),
                                     "Pedido confirmado",
                                     Toasty.LENGTH_SHORT,
                                     true
                             ).show();
+
+                            // 2) Limpiar carrito y refrescar vista
                             CartRepository.getInstance().clear();
                             actualizarVista();
+
+                            // 3) REDIRECCIÓN automática a "Mis pedidos"
+                            // 3.1) Instanciar el fragmento con tu userId
+                            UserPedidosFragment pedidosFrag =
+                                    UserPedidosFragment.newInstance(userId);
+
+                            // 3.2) Reemplazar el contenedor
+                            ((AppCompatActivity) requireActivity())
+                                    .getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.contenedorFragmento, pedidosFrag)
+                                    .commit();
+
+                            // 3.3) Actualizar el título y marcar el item del NavigationView
+                            NavigationView navView =
+                                    requireActivity().findViewById(R.id.navigationView);
+                            navView.setCheckedItem(R.id.nav_pedidos);
+
+                            ((AppCompatActivity) requireActivity())
+                                    .getSupportActionBar()
+                                    .setTitle("Mis pedidos");
                         }
-                        // no other toasts
                     }
                     @Override public void onFailure(Call<Pedido> call, Throwable t) {
                         // no toast
