@@ -1,9 +1,5 @@
 package com.example.cafeteria_android.admin.fragments;
 
-import android.app.AlertDialog;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,16 +13,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.cafeteria_android.R;
-import com.example.cafeteria_android.admin.dialogs.FilterBottomSheet;
+import com.example.cafeteria_android.admin.dialogs.AdminFilterBottomSheet;
 import com.example.cafeteria_android.api.ApiClient;
 import com.example.cafeteria_android.api.ApiService;
-import com.example.cafeteria_android.common.EstadoUsuario;
 import com.example.cafeteria_android.common.AdminPedidoAdapter;
 import com.example.cafeteria_android.common.Pedido;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -42,7 +36,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class AdminPedidosFragment extends Fragment
-        implements FilterBottomSheet.Listener {
+        implements AdminFilterBottomSheet.Listener {
 
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView rvAdminPedidos;
@@ -54,7 +48,6 @@ public class AdminPedidosFragment extends Fragment
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private static final long REFRESH_INTERVAL_MS = 30_000;
-
     private final Runnable refresher = new Runnable() {
         @Override
         public void run() {
@@ -66,10 +59,10 @@ public class AdminPedidosFragment extends Fragment
         }
     };
 
-    @Override
+    @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container,
-                             Bundle savedInstanceState) {
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_admin_pedidos,
                 container, false);
     }
@@ -90,28 +83,19 @@ public class AdminPedidosFragment extends Fragment
         adapter = new AdminPedidoAdapter(
                 listaFiltrada,
                 new AdminPedidoAdapter.OnActionListener() {
-                    @Override
-                    public void onAceptar(Pedido pedido) {
+                    @Override public void onAceptar(Pedido pedido) {
                         actualizarEstado(pedido.getId(), "aceptado");
                     }
-                    @Override
-                    public void onRechazar(Pedido pedido) {
+                    @Override public void onRechazar(Pedido pedido) {
                         actualizarEstado(pedido.getId(), "rechazado");
                     }
-                    @Override
-                    public void onMarcarListo(Pedido pedido) {
+                    @Override public void onMarcarListo(Pedido pedido) {
                         actualizarEstado(pedido.getId(), "listo");
                     }
-                    @Override
-                    public void onMarcarRecogido(Pedido pedido) {
-                        // Llamamos al mismo método que usa el resto de estados
+                    @Override public void onMarcarRecogido(Pedido pedido) {
                         actualizarEstado(pedido.getId(), "recogido");
                     }
-
-
-                    @Override
-                    public void onMarcarPagado(Pedido pedido,
-                                               boolean pagado) {
+                    @Override public void onMarcarPagado(Pedido pedido, boolean pagado) {
                         actualizarPagado(pedido.getId(), pagado);
                     }
                 }
@@ -120,25 +104,22 @@ public class AdminPedidosFragment extends Fragment
 
         swipeRefresh.setOnRefreshListener(this::cargarPedidos);
 
+        // Abrir el BottomSheet específico de admin
         view.findViewById(R.id.fabFilter)
                 .setOnClickListener(v ->
-                        new FilterBottomSheet(this)
-                                .show(getChildFragmentManager(),
-                                        "filter_sheet")
+                        new AdminFilterBottomSheet(this)
+                                .show(getChildFragmentManager(), "admin_filter_sheet")
                 );
 
         swipeRefresh.setRefreshing(true);
         cargarPedidos();
     }
 
-    @Override
-    public void onResume() {
+    @Override public void onResume() {
         super.onResume();
         handler.postDelayed(refresher, REFRESH_INTERVAL_MS);
     }
-
-    @Override
-    public void onPause() {
+    @Override public void onPause() {
         super.onPause();
         handler.removeCallbacks(refresher);
     }
@@ -146,86 +127,66 @@ public class AdminPedidosFragment extends Fragment
     private void cargarPedidos() {
         apiService.obtenerPedidosAdmin("admin", null)
                 .enqueue(new Callback<List<Pedido>>() {
-                    @Override
-                    public void onResponse(Call<List<Pedido>> c, Response<List<Pedido>> r) {
+                    @Override public void onResponse(Call<List<Pedido>> c, Response<List<Pedido>> r) {
                         swipeRefresh.setRefreshing(false);
                         if (r.isSuccessful() && r.body() != null) {
                             listaPedidos.clear();
                             listaPedidos.addAll(r.body());
-
-                            // Filtrar aquí: no mostrar ni "recogido" ni "rechazado"
+                            // Al cargar, aplica filtro inicial: oculta recogidos/rechazados
                             listaFiltrada.clear();
                             for (Pedido p : listaPedidos) {
-                                String estado = p.getEstado().toLowerCase(Locale.ROOT);
-                                if (!estado.equals("recogido") && !estado.equals("rechazado")) {
+                                String est = p.getEstado().toLowerCase(Locale.ROOT);
+                                if (!est.equals("recogido") && !est.equals("rechazado")) {
                                     listaFiltrada.add(p);
                                 }
                             }
-
                             adapter.notifyDataSetChanged();
                         } else {
                             Toasty.error(
                                     getContext(),
                                     "Error al cargar pedidos",
-                                    Toast.LENGTH_SHORT,
-                                    true  // muestra el icono de error
+                                    Toast.LENGTH_SHORT, true
                             ).show();
                         }
-
                         actualizarVista();
                     }
-
-                    @Override
-                    public void onFailure(Call<List<Pedido>> c, Throwable t) {
+                    @Override public void onFailure(Call<List<Pedido>> c, Throwable t) {
                         swipeRefresh.setRefreshing(false);
                         Toasty.error(
                                 getContext(),
                                 "Error: " + t.getMessage(),
-                                Toast.LENGTH_SHORT,
-                                true
+                                Toast.LENGTH_SHORT, true
                         ).show();
                         actualizarVista();
                     }
                 });
     }
 
-
-
     private void actualizarEstado(int pedidoId, String nuevoEstado) {
         apiService.actualizarPedido(
                 pedidoId,
                 Collections.singletonMap("estado", nuevoEstado)
         ).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> c, Response<Void> r) {
+            @Override public void onResponse(Call<Void> c, Response<Void> r) {
                 if (r.isSuccessful()) {
-                    Toasty.success(
-                            getContext(),
+                    Toasty.success(getContext(),
                             "Pedido " + nuevoEstado,
-                            Toast.LENGTH_SHORT,
-                            true  // muestra el icono de éxito
+                            Toast.LENGTH_SHORT, true
                     ).show();
                     cargarPedidos();
                 } else {
-                    Toasty.error(
-                            getContext(),
+                    Toasty.error(getContext(),
                             "Error al actualizar",
-                            Toast.LENGTH_SHORT,
-                            true  // muestra el icono de error
+                            Toast.LENGTH_SHORT, true
                     ).show();
                 }
             }
-
-            @Override
-            public void onFailure(Call<Void> c, Throwable t) {
-                Toasty.error(
-                        getContext(),
+            @Override public void onFailure(Call<Void> c, Throwable t) {
+                Toasty.error(getContext(),
                         "Error: " + t.getMessage(),
-                        Toast.LENGTH_SHORT,
-                        true  // muestra el icono de error
+                        Toast.LENGTH_SHORT, true
                 ).show();
             }
-
         });
     }
 
@@ -234,86 +195,81 @@ public class AdminPedidosFragment extends Fragment
                 pedidoId,
                 Collections.singletonMap("pagado", pagado)
         ).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> c,
-                                   Response<Void> r) {
+            @Override public void onResponse(Call<Void> c, Response<Void> r) {
                 swipeRefresh.setRefreshing(false);
                 if (r.isSuccessful()) {
                     if (pagado) {
                         Toasty.success(getContext(),
-                                        "Pedido marcado como pagado",
-                                        Toast.LENGTH_SHORT,
-                                        true)
-                                .show();
+                                "Pedido marcado como pagado",
+                                Toast.LENGTH_SHORT, true
+                        ).show();
                     } else {
                         Toasty.warning(getContext(),
-                                        "Pago desmarcado",
-                                        Toast.LENGTH_SHORT,
-                                        true)
-                                .show();
+                                "Pago desmarcado",
+                                Toast.LENGTH_SHORT, true
+                        ).show();
                     }
                     cargarPedidos();
                 } else {
                     Toasty.error(getContext(),
-                                    "Error al actualizar pago",
-                                    Toast.LENGTH_SHORT,
-                                    true)
-                            .show();
+                            "Error al actualizar pago",
+                            Toast.LENGTH_SHORT, true
+                    ).show();
                 }
-
             }
-            @Override
-            public void onFailure(Call<Void> c, Throwable t) {
+            @Override public void onFailure(Call<Void> c, Throwable t) {
                 swipeRefresh.setRefreshing(false);
-                Toasty.error(
-                        getContext(),
+                Toasty.error(getContext(),
                         "Error: " + t.getMessage(),
-                        Toast.LENGTH_SHORT,
-                        true  // muestra el icono de error
+                        Toast.LENGTH_SHORT, true
                 ).show();
             }
-
         });
     }
 
-    // Sobrecarga para la interfaz antigua de dos parámetros
-    public void onFilter(String texto, String estado) {
-        listaFiltrada.clear();
-        if (!TextUtils.isEmpty(texto) && TextUtils.isDigitsOnly(texto)) {
-            int buscado = Integer.parseInt(texto);
-            for (Pedido p : listaPedidos) {
-                if (p.getId() == buscado) listaFiltrada.add(p);
-            }
-        } else {
-            String lower = texto.toLowerCase();
-            for (Pedido p : listaPedidos) {
-                boolean coincideTexto =
-                        p.getUsuario().getNombreCompleto()
-                                .toLowerCase().contains(lower)
-                                || p.getUsuario().getEmail()
-                                .toLowerCase().contains(lower)
-                                || String.valueOf(p.getId()).contains(lower);
-                boolean coincideEstado =
-                        TextUtils.isEmpty(estado)
-                                || estado.equalsIgnoreCase("Todos")
-                                || p.getEstado().equalsIgnoreCase(estado);
+    /** Callback del BottomSheet de admin */
+    @Override
+    public void onAdminFilter(String texto, String estadoPedido) {
+        filtrarPedidosAdmin(texto, estadoPedido);
+    }
 
-                if (coincideTexto && coincideEstado) {
-                    listaFiltrada.add(p);
-                }
+    /** Lógica de filtrado según texto y estado */
+    private void filtrarPedidosAdmin(String texto, String estadoPedido) {
+        listaFiltrada.clear();
+        String lowerText = texto.toLowerCase(Locale.ROOT);
+
+        for (Pedido p : listaPedidos) {
+            String estadoRaw = p.getEstado().toLowerCase(Locale.ROOT);
+
+            // Nunca mostrar recogidos ni rechazados
+            if (estadoRaw.equals("recogido") || estadoRaw.equals("rechazado")) {
+                continue;
+            }
+
+            // 1) Filtrar por texto (ID exacto o parte de nombre)
+            boolean matchText;
+            if (!texto.isEmpty() && TextUtils.isDigitsOnly(texto)) {
+                matchText = String.valueOf(p.getId()).equals(texto);
+            } else {
+                String nombre = p.getUsuario()
+                        .getNombreCompleto()
+                        .toLowerCase(Locale.ROOT);
+                matchText = nombre.contains(lowerText);
+            }
+
+            // 2) Filtrar por estado seleccionado
+            boolean matchEstado = estadoPedido.equals("Todos")
+                    || estadoRaw.equals(estadoPedido.toLowerCase(Locale.ROOT));
+
+            if (matchText && matchEstado) {
+                listaFiltrada.add(p);
             }
         }
+
         adapter.notifyDataSetChanged();
         actualizarVista();
     }
 
-    // Nuevo método de la interfaz con 3 parámetros, delega al antiguo
-    @Override
-    public void onFilter(String texto,
-                         String tipo,
-                         EstadoUsuario estado) {
-        onFilter(texto, tipo);
-    }
 
     private void actualizarVista() {
         boolean hay = !listaFiltrada.isEmpty();

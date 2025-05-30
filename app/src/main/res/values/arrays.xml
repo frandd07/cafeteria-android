@@ -2,12 +2,25 @@
     <string-array name="cursos_array">
         <item>1º ESO A</item>
         <item>1º ESO B</item>
+        <item>1º ESO C</item>
+        <item>1º ESO D</item>
         <item>2º ESO A</item>
         <item>2º ESO B</item>
+        <item>2º ESO C</item>
+        <item>2º ESO D</item>
         <item>3º ESO A</item>
         <item>3º ESO B</item>
-        <item>4º ESO</item>
+        <item>3º ESO C</item>
+        <item>3º ESO D</item>
+        <item>4º ESO A</item>
+        <item>4º ESO B</item>
+        <item>4º ESO C</item>
+        <item>4º ESO D</item>
         <item>1º Bachillerato</item>
         <item>2º Bachillerato</item>
+        <item>1º SMR</item>
+        <item>2º SMR</item>
+        <item>1º DAM</item>
+        <item>2º DAM</item>
     </string-array>
 </resources>

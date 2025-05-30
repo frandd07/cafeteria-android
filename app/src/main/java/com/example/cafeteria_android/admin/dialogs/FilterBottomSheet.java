@@ -65,7 +65,7 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
                 "Todos",
                 "No verificados",
                 "Deben actualizar",
-                "Normales"
+                "Al día"
         };
         ArrayAdapter<String> estadoAdapter = new ArrayAdapter<>(
                 requireContext(),
